@@ -40,6 +40,10 @@ const envSchema = z
     SUPABASE_URL: z.string().url(),
     SUPABASE_ANON_KEY: nonEmpty('SUPABASE_ANON_KEY'),
     SUPABASE_SERVICE_ROLE_KEY: nonEmpty('SUPABASE_SERVICE_ROLE_KEY'),
+    // Direct Postgres — supabase-js cannot do multi-statement transactions (R2).
+    DATABASE_URL: z
+      .string()
+      .regex(/^postgres(ql)?:\/\//, 'DATABASE_URL must be a postgres:// connection string'),
 
     // ---- Auth (R8: two distinct secrets)
     JWT_SECRET: z.string().min(32, 'JWT_SECRET must be at least 32 characters'),
