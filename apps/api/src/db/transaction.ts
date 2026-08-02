@@ -31,6 +31,24 @@ export async function withTransaction<T>(fn: (tx: Tx) => Promise<T>): Promise<T>
   return (await sql.begin((tx) => fn(tx))) as T;
 }
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * Renders a uuid list as a Postgres array literal for `= any($1::uuid[])`.
+ *
+ * Bun's SQL client serialises a JS array by joining it with commas, which
+ * Postgres then rejects as a malformed array literal. The literal is still
+ * passed as a single bound parameter, so nothing is interpolated into SQL —
+ * but each id is shape-checked anyway, because a value that is not a uuid here
+ * means a bug upstream and should fail before it reaches the database.
+ */
+export function uuidArray(ids: readonly string[]): string {
+  for (const id of ids) {
+    if (!UUID_RE.test(id)) throw new TypeError(`not a uuid: ${id}`);
+  }
+  return `{${ids.join(',')}}`;
+}
+
 /** Liveness probe for /health. */
 export async function pingDatabase(): Promise<boolean> {
   try {

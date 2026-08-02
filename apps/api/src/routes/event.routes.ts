@@ -1,8 +1,10 @@
 import { Elysia, t } from 'elysia';
 import { toEnvelope } from '../lib/errors.ts';
 import { requireAuth } from '../middleware/auth.ts';
+import { enforceRateLimit } from '../middleware/rateLimit.ts';
 import { requestIdPlugin } from '../middleware/requestId.ts';
 import * as eventService from '../services/event.service.ts';
+import * as reservationService from '../services/reservation.service.ts';
 
 /** R12 — shared boundary schemas. Nothing unvalidated reaches a service. */
 const uuidParam = t.Object({ id: t.String({ format: 'uuid' }) });
@@ -163,6 +165,42 @@ export const protectedEventRoutes = new Elysia({ prefix: '/events' })
       return toEnvelope(created, { requestId });
     },
     { params: uuidParam, body: t.Object(ticketTypeFields) },
+  )
+
+  /**
+   * §6.3 POST /events/:id/reserve. Calls reserve_tickets() through the service;
+   * no availability logic exists on this side of the boundary (R1).
+   */
+  .post(
+    '/:id/reserve',
+    async ({ params, body, user, requestId, set }) => {
+      // §8 — 20/min/user, keyed on the user rather than the IP: a ticket drop
+      // puts thousands of legitimate buyers behind one mobile carrier NAT.
+      await enforceRateLimit({ key: `reserve:${user.id}`, limit: 20, windowSeconds: 60 });
+
+      const reservation = await reservationService.createReservation({
+        userId: user.id,
+        eventId: params.id,
+        ticketDescriptionId: body.ticketDescriptionId,
+        quantity: body.quantity,
+      });
+
+      set.status = 201;
+      return toEnvelope(
+        {
+          ticketIds: reservation.ticketIds,
+          expiresAt: reservation.expiresAt.toISOString(),
+        },
+        { requestId },
+      );
+    },
+    {
+      params: uuidParam,
+      body: t.Object({
+        ticketDescriptionId: t.String({ format: 'uuid' }),
+        quantity: t.Integer({ minimum: 1, maximum: 20 }),
+      }),
+    },
   );
 
 // -------------------------------------------------------- ticket types

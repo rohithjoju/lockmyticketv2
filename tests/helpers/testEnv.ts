@@ -7,7 +7,7 @@
  *   import { startTestEnv, stopTestEnv } from '../helpers/testEnv.ts';
  */
 import { spawnSync, spawn, type ChildProcess } from 'node:child_process';
-import { mkdtempSync, rmSync, existsSync } from 'node:fs';
+import { mkdtempSync, readdirSync, rmSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -87,10 +87,13 @@ async function bootTestEnv(): Promise<TestEnv> {
     run('psql', ['-v', 'ON_ERROR_STOP=1', '-q', '-d', 'eticket_test', '-f', file], pgEnv);
 
   psql(join(ROOT, 'tests/db/auth-shim.sql'));
-  psql(join(MIGRATIONS, '0001_schema.sql'));
-  psql(join(MIGRATIONS, '0002_functions.sql'));
-  psql(join(MIGRATIONS, '0003_rls.sql'));
-  psql(join(MIGRATIONS, '0004_seed.sql'));
+  // Applied in filename order, like `supabase migration up` — so a new
+  // migration is picked up by the tests without editing this file.
+  for (const file of readdirSync(MIGRATIONS)
+    .filter((f) => f.endsWith('.sql'))
+    .sort()) {
+    psql(join(MIGRATIONS, file));
+  }
 
   const databaseUrl = `postgresql://${user}@127.0.0.1:${pgPort}/eticket_test`;
 

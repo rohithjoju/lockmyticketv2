@@ -15,6 +15,13 @@ import {
   ticketTypeRoutes,
 } from './routes/event.routes.ts';
 import { healthRoutes } from './routes/health.routes.ts';
+import { paymentRoutes, paymentWebhookRoutes } from './routes/payment.routes.ts';
+import { refundRoutes } from './routes/refund.routes.ts';
+import { reservationRoutes, ticketRoutes } from './routes/ticket.routes.ts';
+import { closeQueues, registerSchedules } from './queues/index.ts';
+import { startEmailWorker } from './queues/email.worker.ts';
+import { startMediaWorker } from './queues/media.worker.ts';
+import { startReconcileWorker } from './queues/reconcile.worker.ts';
 
 // R11: validates the whole env contract here. A missing var fails boot.
 const env = getEnv();
@@ -51,22 +58,38 @@ export function createApp() {
           .use(authRoutes)
           .use(publicEventRoutes)
           .use(protectedEventRoutes)
-          .use(ticketTypeRoutes),
+          .use(ticketTypeRoutes)
+          // Public and HMAC-authenticated: mounted before the guarded /payments
+          // instance so it is never behind requireAuth.
+          .use(paymentWebhookRoutes)
+          .use(paymentRoutes)
+          .use(ticketRoutes)
+          .use(refundRoutes)
+          .use(reservationRoutes),
       )
   );
 }
 
 export type App = ReturnType<typeof createApp>;
 
-// Only listen when run directly, so tests can import createApp() freely.
+// Only listen when run directly, so tests can import createApp() freely — and
+// so importing a service never starts a worker or schedules a recurring job.
 if (import.meta.main) {
   await connectRedis();
+
+  const workers = [startEmailWorker(), startMediaWorker(), startReconcileWorker()];
+  await registerSchedules();
+
   const app = createApp().listen(env.API_PORT);
   logger.info({ port: env.API_PORT, env: env.NODE_ENV }, 'api listening');
 
   const shutdown = async (signal: string) => {
     logger.info({ signal }, 'shutting down');
     await app.stop();
+    // Workers first: let an in-flight confirmation email finish before the
+    // database it reads from goes away.
+    await Promise.allSettled(workers.map((w) => w.close()));
+    await closeQueues();
     await Promise.allSettled([closeDatabase(), closeRedis()]);
     process.exit(0);
   };

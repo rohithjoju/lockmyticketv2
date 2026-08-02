@@ -14,6 +14,11 @@ import { startTestEnv, stopTestEnv } from './testEnv.ts';
 await startTestEnv();
 
 afterAll(async () => {
+  // BullMQ queues hold their own Redis connections; leaving them open keeps
+  // the test process alive long after the last assertion.
+  const { closeQueues } = await import('../../apps/api/src/queues/index.ts');
+  await closeQueues().catch(() => {});
+
   // Release the pool before stopping Postgres, so shutdown is clean rather
   // than a race between an open socket and a dying cluster.
   const { closeDatabase } = await import('../../apps/api/src/db/transaction.ts');

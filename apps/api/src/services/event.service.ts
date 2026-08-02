@@ -18,6 +18,13 @@ import {
   readAndValidate,
   uploadBuffer,
 } from '../lib/cloudinary.ts';
+import {
+  emailQueue,
+  enqueueBestEffort,
+  enqueueRequired,
+  jobIds,
+  reconcileQueue,
+} from '../queues/index.ts';
 
 export type Actor = { id: string; role: UserRole };
 
@@ -479,8 +486,12 @@ export async function updateEvent(
       },
       newValue: { title: patch.title, startTime, endTime, city: patch.city, changeReason: patch.changeReason },
     });
-    // R5 — holder notifications go to the email queue, which lands in Phase 4.
-    logger.info({ eventId, sold }, 'event changed after sale; holders must be notified');
+    // R5 — holders are notified from a worker, never awaited here.
+    await enqueueBestEffort(emailQueue, 'event_changed', {
+      type: 'event_changed',
+      eventId,
+      changeReason: patch.changeReason!.trim(),
+    });
   }
 
   return getEventDetail(eventId);
@@ -508,8 +519,24 @@ export async function cancelEvent(eventId: string, actor: Actor): Promise<EventD
   });
 
   if (sold > 0) {
-    // F12 — bulk 100% refunds are enqueued by the refund service (Phase 4).
-    logger.warn({ eventId, sold }, 'cancelled event has sold tickets; refunds pending');
+    logger.warn({ eventId, sold }, 'cancelled event has sold tickets; refunds queued');
+
+    // F12 — 500 refunds is not something to hold an HTTP connection open for,
+    // and the money must still move if this request dies (R5). Required, not
+    // best-effort: silently dropping this leaves buyers out of pocket.
+    await enqueueRequired(
+      reconcileQueue,
+      'bulk_refund',
+      { type: 'bulk_refund', eventId, initiatedBy: actor.id },
+      { jobId: jobIds.bulkRefund(eventId) },
+    );
+
+    await enqueueBestEffort(
+      emailQueue,
+      'event_cancelled',
+      { type: 'event_cancelled', eventId },
+      { jobId: jobIds.eventCancelled(eventId) },
+    );
   }
 
   return getEventDetail(eventId);
