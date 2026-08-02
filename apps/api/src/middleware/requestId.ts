@@ -7,14 +7,37 @@ export function newRequestId(): string {
 }
 
 /**
+ * The caller's address, for rate-limit keys and `audit_logs.ip_address`.
+ *
+ * `x-forwarded-for` is spoofable by anyone talking to the API directly, so it
+ * is only meaningful behind a proxy that overwrites it. The socket address is
+ * the fallback, and 'unknown' is a valid answer rather than a fabricated one.
+ */
+export function clientIp(
+  request: Request,
+  server: { requestIP?: (request: Request) => { address: string } | null } | null,
+): string {
+  return (
+    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
+    server?.requestIP?.(request)?.address ??
+    'unknown'
+  );
+}
+
+/**
  * Assigns a requestId to every request and logs method/path/status/duration
  * (§9). The id is echoed in the response envelope's `meta` and in the
  * `X-Request-Id` header so a user-reported error can be traced to a log line.
  */
 export const requestIdPlugin = new Elysia({ name: 'requestId' })
-  .derive({ as: 'global' }, ({ request }) => {
+  .derive({ as: 'global' }, ({ request, server }) => {
     const requestId = request.headers.get('x-request-id') ?? newRequestId();
-    return { requestId, log: requestLogger(requestId), startedAt: performance.now() };
+    return {
+      requestId,
+      clientIp: clientIp(request, server),
+      log: requestLogger(requestId),
+      startedAt: performance.now(),
+    };
   })
   .onAfterHandle({ as: 'global' }, ({ requestId, set }) => {
     set.headers['x-request-id'] = requestId;

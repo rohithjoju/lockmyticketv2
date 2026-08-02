@@ -25,6 +25,7 @@ import {
   jobIds,
   reconcileQueue,
 } from '../queues/index.ts';
+import { recordAudit } from './audit.service.ts';
 
 export type Actor = { id: string; role: UserRole };
 
@@ -857,26 +858,4 @@ export async function getAnalytics(eventId: string, actor: Actor): Promise<Event
   };
 }
 
-// --------------------------------------------------------------- audit
-
-/**
- * Minimal audit writer for the organizer-side mutations that F11/F12 require a
- * trail for. Phase 5 introduces `audit.service.ts` as the shared implementation
- * (R10 covers admin mutations); this stays behaviour-compatible with it.
- */
-async function recordAudit(entry: {
-  actorUserId: string;
-  actionType: string;
-  targetTable: string;
-  targetId: string;
-  oldValue: Record<string, unknown> | null;
-  newValue: Record<string, unknown> | null;
-}): Promise<void> {
-  // Objects are passed straight through: JSON.stringify()ing them first makes
-  // Bun bind a JSON *string*, which lands in jsonb double-encoded.
-  await sql`
-    insert into audit_logs (actor_user_id, action_type, target_table, target_id, old_value, new_value)
-    values (${entry.actorUserId}, ${entry.actionType}, ${entry.targetTable}, ${entry.targetId},
-            ${entry.oldValue}, ${entry.newValue})
-  `;
-}
+// (Audit writing now lives in audit.service.ts — see the import at the top.)

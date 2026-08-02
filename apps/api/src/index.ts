@@ -6,7 +6,7 @@ import { closeDatabase } from './db/transaction.ts';
 import { closeRedis, connectRedis } from './db/redis.ts';
 import { logger } from './lib/logger.ts';
 import { errorHandlerPlugin } from './middleware/errorHandler.ts';
-import { requestIdPlugin } from './middleware/requestId.ts';
+import { clientIp, requestIdPlugin } from './middleware/requestId.ts';
 import { globalLimit } from './middleware/rateLimit.ts';
 import { authRoutes, passwordRoutes } from './routes/auth.routes.ts';
 import {
@@ -14,7 +14,9 @@ import {
   publicEventRoutes,
   ticketTypeRoutes,
 } from './routes/event.routes.ts';
+import { adminRoutes } from './routes/admin.routes.ts';
 import { healthRoutes } from './routes/health.routes.ts';
+import { organizerRoutes } from './routes/organizer.routes.ts';
 import { paymentRoutes, paymentWebhookRoutes } from './routes/payment.routes.ts';
 import { refundRoutes } from './routes/refund.routes.ts';
 import { reservationRoutes, ticketRoutes } from './routes/ticket.routes.ts';
@@ -45,11 +47,7 @@ export function createApp() {
       .onBeforeHandle(async ({ request, server, path }) => {
         // /health must stay reachable even when a caller is being throttled.
         if (path === '/api/v1/health') return;
-        const ip =
-          request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
-          server?.requestIP(request)?.address ??
-          'unknown';
-        await globalLimit(ip);
+        await globalLimit(clientIp(request, server));
       })
       .group('/api/v1', (app) =>
         app
@@ -65,7 +63,9 @@ export function createApp() {
           .use(paymentRoutes)
           .use(ticketRoutes)
           .use(refundRoutes)
-          .use(reservationRoutes),
+          .use(reservationRoutes)
+          .use(organizerRoutes)
+          .use(adminRoutes),
       )
   );
 }
