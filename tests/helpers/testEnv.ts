@@ -52,7 +52,18 @@ async function waitForPort(port: number, timeoutMs = 10_000) {
 
 export type TestEnv = { databaseUrl: string; redisUrl: string };
 
-export async function startTestEnv(): Promise<TestEnv> {
+/**
+ * Idempotent: the whole test run shares one cluster (see tests/helpers/setup.ts).
+ * Repeat callers join the in-flight boot instead of starting a second one.
+ */
+let starting: Promise<TestEnv> | null = null;
+
+export function startTestEnv(): Promise<TestEnv> {
+  starting ??= bootTestEnv();
+  return starting;
+}
+
+async function bootTestEnv(): Promise<TestEnv> {
   // ---- Postgres
   pgData = mkdtempSync(join(tmpdir(), 'eticket-pg-'));
   sockDir = mkdtempSync(join(tmpdir(), 'eticket-sock-'));
@@ -137,7 +148,10 @@ export async function startTestEnv(): Promise<TestEnv> {
     MAX_TICKETS_PER_USER_PER_EVENT: '10',
     LOGIN_MAX_ATTEMPTS: '5',
     LOGIN_LOCKOUT_MINUTES: '15',
-    API_RATE_LIMIT_PER_MINUTE: '100',
+    // Deliberately generous: every test file shares one Redis, so the
+    // production value would throttle unrelated suites into failure. Rate
+    // limiting is exercised by its own test, which sets the limit it needs.
+    API_RATE_LIMIT_PER_MINUTE: process.env.API_RATE_LIMIT_PER_MINUTE ?? '1000',
   });
 
   return { databaseUrl, redisUrl };
@@ -148,6 +162,7 @@ function hasBinary(name: string): boolean {
 }
 
 export async function stopTestEnv(): Promise<void> {
+  starting = null;
   redisProc?.kill('SIGKILL');
   redisProc = null;
 

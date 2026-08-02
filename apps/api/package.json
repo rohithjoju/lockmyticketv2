@@ -19,6 +19,7 @@
     "cloudinary": "^2",
     "elysia": "^1",
     "ioredis": "^5",
+    "isomorphic-dompurify": "^3.21.0",
     "jose": "^5",
     "pino": "^9",
     "pino-pretty": "^13",

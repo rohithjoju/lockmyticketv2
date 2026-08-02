@@ -1,9 +1,8 @@
-import { describe, expect, test, beforeAll, afterAll } from 'bun:test';
-import { startTestEnv, stopTestEnv } from '../helpers/testEnv.ts';
+import { describe, expect, test, beforeAll } from 'bun:test';
 
-// Boot infra and populate process.env BEFORE importing anything that reads it.
-await startTestEnv();
-
+// Infrastructure and process.env come from tests/helpers/setup.ts, preloaded
+// before this file. App modules are imported dynamically because
+// packages/config validates the environment at import time.
 const { createApp } = await import('../../apps/api/src/index.ts');
 const { sql } = await import('../../apps/api/src/db/transaction.ts');
 const { connectRedis } = await import('../../apps/api/src/db/redis.ts');
@@ -11,6 +10,9 @@ const { connectRedis } = await import('../../apps/api/src/db/redis.ts');
 const app = createApp();
 
 const BASE = 'http://localhost/api/v1';
+// Per-IP limiters are shared across test files via one Redis; this file bills
+// its requests to its own address so unrelated suites cannot throttle it.
+const CLIENT_IP = '203.0.113.10';
 
 type Envelope<T = unknown> = {
   success: boolean;
@@ -28,6 +30,7 @@ async function call(
       ...init,
       headers: {
         'content-type': 'application/json',
+        'x-forwarded-for': CLIENT_IP,
         ...(init.headers ?? {}),
       },
     }),
@@ -61,11 +64,6 @@ function expectEnvelope(body: Envelope) {
 
 beforeAll(async () => {
   await connectRedis();
-});
-
-afterAll(async () => {
-  await sql.close().catch(() => {});
-  await stopTestEnv();
 });
 
 describe('§6.1 response envelope (R9)', () => {

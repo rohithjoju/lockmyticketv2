@@ -9,6 +9,11 @@ import { errorHandlerPlugin } from './middleware/errorHandler.ts';
 import { requestIdPlugin } from './middleware/requestId.ts';
 import { globalLimit } from './middleware/rateLimit.ts';
 import { authRoutes, passwordRoutes } from './routes/auth.routes.ts';
+import {
+  protectedEventRoutes,
+  publicEventRoutes,
+  ticketTypeRoutes,
+} from './routes/event.routes.ts';
 import { healthRoutes } from './routes/health.routes.ts';
 
 // R11: validates the whole env contract here. A missing var fails boot.
@@ -39,7 +44,15 @@ export function createApp() {
           'unknown';
         await globalLimit(ip);
       })
-      .group('/api/v1', (app) => app.use(healthRoutes).use(passwordRoutes).use(authRoutes))
+      .group('/api/v1', (app) =>
+        app
+          .use(healthRoutes)
+          .use(passwordRoutes)
+          .use(authRoutes)
+          .use(publicEventRoutes)
+          .use(protectedEventRoutes)
+          .use(ticketTypeRoutes),
+      )
   );
 }
 

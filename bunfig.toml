@@ -1,0 +1,4 @@
+[test]
+# Boots the throwaway Postgres + Redis once, before any test file is imported.
+# See tests/helpers/setup.ts for why this cannot live in a per-file hook.
+preload = ["./tests/helpers/setup.ts"]
