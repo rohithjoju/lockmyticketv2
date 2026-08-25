@@ -40,3 +40,5 @@ coverage/
 supabase/.branches/
 supabase/.temp/
 .agents
+.claude/
+skills-lock.json

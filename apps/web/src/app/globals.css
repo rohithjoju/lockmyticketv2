@@ -1,0 +1,199 @@
+@import 'tailwindcss';
+@config '../../tailwind.config.ts';
+
+/* ============================================================
+   Box office
+   ------------------------------------------------------------
+   The product is a printed ticket that happens to live on a phone:
+   indigo card stock, a marigold counterfoil, a vermilion sold-out
+   stamp. Numerals are set in a mono face because this whole system
+   is about counts — seats left, minutes left, rupees.
+   ============================================================ */
+
+:root {
+  /* -- raw palette (never used directly by a component) */
+  --marigold: #ffb020;
+  --marigold-deep: #d98b00;
+  --vermilion: #e5432b;
+  --indigo: #3a35a8;
+  --indigo-lift: #6d68e0;
+
+  /* -- semantic tokens, light */
+  --paper: #eceef2;
+  --surface: #ffffff;
+  --surface-sunk: #f4f5f8;
+  --fg: #101018;
+  --fg-muted: #565a6b;
+  --line: #d9dce4;
+  --line-strong: #b9bdc9;
+  --accent: var(--indigo);
+  --accent-fg: #ffffff;
+  --highlight: var(--marigold);
+  --highlight-fg: #2a1c00;
+  --danger: var(--vermilion);
+  --danger-fg: #ffffff;
+  --ring: var(--indigo);
+
+  color-scheme: light;
+}
+
+/* Dark by preference, unless the reader has explicitly asked for light. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --paper: #0c0c14;
+    --surface: #16162a;
+    --surface-sunk: #101021;
+    --fg: #eceef6;
+    --fg-muted: #9a9fb5;
+    --line: #262643;
+    --line-strong: #3a3a63;
+    --accent: var(--indigo-lift);
+    --accent-fg: #0c0c14;
+    --highlight: var(--marigold);
+    --highlight-fg: #2a1c00;
+    --ring: var(--indigo-lift);
+
+    color-scheme: dark;
+  }
+}
+
+/* An explicit choice always wins over the media query. */
+[data-theme='dark'] {
+  --paper: #0c0c14;
+  --surface: #16162a;
+  --surface-sunk: #101021;
+  --fg: #eceef6;
+  --fg-muted: #9a9fb5;
+  --line: #262643;
+  --line-strong: #3a3a63;
+  --accent: var(--indigo-lift);
+  --accent-fg: #0c0c14;
+  --highlight: var(--marigold);
+  --highlight-fg: #2a1c00;
+  --ring: var(--indigo-lift);
+
+  color-scheme: dark;
+}
+
+@theme inline {
+  --font-display: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-instrument), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-martian), ui-monospace, 'SFMono-Regular', monospace;
+
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-sunk: var(--surface-sunk);
+  --color-fg: var(--fg);
+  --color-muted: var(--fg-muted);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+  --color-highlight: var(--highlight);
+  --color-highlight-fg: var(--highlight-fg);
+  --color-danger: var(--danger);
+  --color-danger-fg: var(--danger-fg);
+
+  --radius-stub: 0.75rem;
+}
+
+@layer base {
+  * {
+    border-color: var(--line);
+  }
+
+  body {
+    background-color: var(--paper);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* The display face is set tight and large; it is the page's voice. */
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.035em;
+    font-weight: 700;
+  }
+
+  /* Every number on this site is box-office data. Set it like data. */
+  .tabular {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.04em;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  /* ----------------------------------------------------------
+     The signature: a ticket stub. A dashed tear line with a real
+     punched notch at each end, drawn with two radial gradients so
+     the notch shows the page behind it rather than a fake circle.
+     ---------------------------------------------------------- */
+  .stub {
+    position: relative;
+    background-color: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-stub);
+  }
+
+  /* Media inside a stub clips itself; the stub cannot, or it would cut the
+     punched notches off the tear line. */
+  .stub-media {
+    overflow: hidden;
+    border-top-left-radius: calc(var(--radius-stub) - 1px);
+    border-top-right-radius: calc(var(--radius-stub) - 1px);
+  }
+
+  .stub-tear {
+    position: relative;
+    border-top: 1px dashed var(--line-strong);
+  }
+
+  .stub-tear::before,
+  .stub-tear::after {
+    content: '';
+    position: absolute;
+    top: -0.5rem;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 9999px;
+    background-color: var(--paper);
+    border: 1px solid var(--line);
+  }
+
+  .stub-tear::before {
+    left: -0.5rem;
+  }
+
+  .stub-tear::after {
+    right: -0.5rem;
+  }
+
+  /* The counterfoil edge on a browse card: perforation running down
+     the side that carries the price. */
+  .perf-y {
+    background-image: radial-gradient(circle at 0.3rem 50%, var(--paper) 0.3rem, transparent 0.3rem);
+    background-size: 100% 0.9rem;
+    background-repeat: repeat-y;
+  }
+}
