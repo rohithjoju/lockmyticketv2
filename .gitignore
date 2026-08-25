@@ -39,3 +39,4 @@ coverage/
 # supabase local
 supabase/.branches/
 supabase/.temp/
+.agents
