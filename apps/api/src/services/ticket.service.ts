@@ -1,4 +1,4 @@
-import type { ReservationStatus, TicketStatus } from '@event-ticketing/types';
+import type { ReservationStatus, TicketDto, TicketStatus } from '@event-ticketing/types';
 import { sql } from '../db/transaction.ts';
 import { decodeCursor, encodeCursor } from '../lib/cursor.ts';
 import { AppError } from '../lib/errors.ts';
@@ -6,19 +6,8 @@ import { signQrToken, verifyQrToken } from '../lib/jwt.ts';
 import { logger } from '../lib/logger.ts';
 import type { Actor } from './event.service.ts';
 
-export type TicketDto = {
-  id: string;
-  eventId: string;
-  eventTitle: string;
-  eventStartTime: string;
-  ticketType: string;
-  price: number;
-  status: TicketStatus;
-  reservationStatus: ReservationStatus;
-  reservationExpiresAt: string;
-  verifiedAt: string | null;
-  createdAt: string;
-};
+/** Declared in packages/types so the web wallet renders exactly this. */
+export type { TicketDto };
 
 type TicketRow = {
   id: string;

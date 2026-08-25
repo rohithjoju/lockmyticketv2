@@ -1,6 +1,8 @@
 import type {
+  EventDto,
   EventStatus,
   RefundPolicy,
+  TicketTypeDto,
   UserRole,
   VerificationStatus,
 } from '@event-ticketing/types';
@@ -30,44 +32,11 @@ import { recordAudit } from './audit.service.ts';
 export type Actor = { id: string; role: UserRole };
 
 // ---------------------------------------------------------------- DTOs
+// Declared in packages/types so the web app renders exactly what this
+// returns; re-exported here because the rest of this file reads better
+// referring to them unqualified.
 
-export type TicketTypeDto = {
-  id: string;
-  eventId: string;
-  name: string;
-  description: string | null;
-  price: number;
-  totalTickets: number;
-  /** Read live on every request — never cached (Phase 3 AC7). */
-  availableTickets: number;
-};
-
-export type EventDto = {
-  id: string;
-  organizerId: string;
-  title: string;
-  description: string | null;
-  eventType: string | null;
-  locationName: string | null;
-  address: string | null;
-  city: string;
-  latitude: number | null;
-  longitude: number | null;
-  startTime: string;
-  endTime: string;
-  posterUrl: string | null;
-  videoUrl: string | null;
-  imagesUrls: string[];
-  termsAndConditions: string | null;
-  refundPolicy: RefundPolicy;
-  organizerStatusSnapshot: string | null;
-  adminFlagged: boolean;
-  cancelledAt: string | null;
-  /** Computed by the events_with_status view, never stored (R7). */
-  status: EventStatus;
-  createdAt: string;
-  updatedAt: string;
-};
+export type { EventDto, TicketTypeDto };
 
 /** Columns of events_with_status we ever expose. `search_vector` is internal. */
 const EVENT_COLUMNS = `

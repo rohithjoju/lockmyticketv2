@@ -1,5 +1,12 @@
 import { getEnv } from '@event-ticketing/config';
-import type { User, UserRole, UserStatus, VerificationStatus } from '@event-ticketing/types';
+import type {
+  PublicUserDto,
+  SessionUserDto,
+  User,
+  UserRole,
+  UserStatus,
+  VerificationStatus,
+} from '@event-ticketing/types';
 import { redis } from '../db/redis.ts';
 import { sql } from '../db/transaction.ts';
 import { AppError } from '../lib/errors.ts';
@@ -15,14 +22,8 @@ const env = getEnv();
 
 export type AuthTokens = { accessToken: string; refreshToken: string };
 
-export type PublicUser = {
-  id: string;
-  name: string;
-  email: string;
-  role: UserRole;
-  status: UserStatus;
-  createdAt: string;
-};
+/** Declared in packages/types (as PublicUserDto) so the web app shares it. */
+export type PublicUser = PublicUserDto;
 
 function toPublicUser(row: User): PublicUser {
   return {
@@ -207,11 +208,7 @@ export async function logout(refreshToken: string | undefined): Promise<void> {
 }
 
 /** Current user plus organizer status, for GET /auth/me. */
-export async function getMe(userId: string): Promise<
-  PublicUser & {
-    organizer: { id: string; verificationStatus: VerificationStatus } | null;
-  }
-> {
+export async function getMe(userId: string): Promise<SessionUserDto> {
   const rows = (await sql`
     select u.*,
            o.id                  as organizer_id,
