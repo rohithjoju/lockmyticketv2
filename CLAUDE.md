@@ -64,6 +64,7 @@ Violating any of these is a defect even if tests pass.
 ```
 bun run dev        # api + web
 bun test           # all tests
+bun run test:e2e   # playwright e2e tests
 bun run typecheck
 supabase migration up
 ```

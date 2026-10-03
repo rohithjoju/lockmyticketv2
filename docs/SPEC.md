@@ -849,6 +849,7 @@ Define as a TypeScript union in `packages/types/src/errors.ts`. Adding a new cod
 |---|---|---|
 | `VALIDATION_FAILED` | 400 | Elysia schema rejection; include `field` |
 | `UNAUTHENTICATED` | 401 | Missing/expired/invalid access token |
+| `INVALID_CREDENTIALS` | 401 | Incorrect email or password during login |
 | `TOKEN_EXPIRED` | 401 | Specifically expired — frontend should refresh |
 | `FORBIDDEN` | 403 | Authenticated but wrong role/ownership |
 | `ACCOUNT_DISABLED` | 403 | `users.status = 'disabled'` |
