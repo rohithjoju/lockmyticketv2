@@ -43,3 +43,7 @@ supabase/.temp/
 .claude/
 skills-lock.json
 .env.bak
+
+# Automation tests
+tests/automation/playwright-report/data/
+tests/automation/test-results/**/*.md
