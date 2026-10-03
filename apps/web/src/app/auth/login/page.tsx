@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -19,10 +19,23 @@ const schema = z.object({
 type Values = z.infer<typeof schema>;
 
 function LoginForm() {
-  const { signIn } = useAuth();
+  const { signIn, state } = useAuth();
   const router = useRouter();
   const params = useSearchParams();
   const [failure, setFailure] = useState<ApiClientError | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  const returnTo = safeReturnTo(params.get(RETURN_PARAM));
+
+  useEffect(() => {
+    if (state === 'authenticated') {
+      router.replace(returnTo);
+    }
+  }, [state, router, returnTo]);
 
   const {
     register,
@@ -34,7 +47,7 @@ function LoginForm() {
     setFailure(null);
     try {
       await signIn(values);
-      router.replace(safeReturnTo(params.get(RETURN_PARAM)));
+      router.replace(returnTo);
     } catch (error) {
       setFailure(error instanceof ApiClientError ? error : null);
     }
@@ -51,7 +64,12 @@ function LoginForm() {
         </>
       }
     >
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
+      <form
+        method="POST"
+        onSubmit={handleSubmit(onSubmit)}
+        className="space-y-5"
+        noValidate
+      >
         {failure ? (
           <Notice title={failure.title} detail={failure.detail} requestId={failure.requestId} />
         ) : null}
@@ -76,7 +94,7 @@ function LoginForm() {
           />
         </Field>
 
-        <Button type="submit" disabled={isSubmitting} className="w-full">
+        <Button type="submit" disabled={!isMounted || isSubmitting || state === 'authenticated'} className="w-full">
           {isSubmitting ? 'Signing in…' : 'Sign in'}
         </Button>
 

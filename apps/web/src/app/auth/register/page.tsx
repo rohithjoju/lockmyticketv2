@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useState } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -28,6 +28,11 @@ function RegisterForm() {
   const router = useRouter();
   const params = useSearchParams();
   const [failure, setFailure] = useState<ApiClientError | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const {
     register,
@@ -58,7 +63,12 @@ function RegisterForm() {
         </>
       }
     >
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
+      <form
+        method="POST"
+        onSubmit={handleSubmit(onSubmit)}
+        className="space-y-5"
+        noValidate
+      >
         {failure ? (
           <Notice title={failure.title} detail={failure.detail} requestId={failure.requestId} />
         ) : null}
@@ -97,7 +107,7 @@ function RegisterForm() {
           />
         </Field>
 
-        <Button type="submit" disabled={isSubmitting} className="w-full">
+        <Button type="submit" disabled={!isMounted || isSubmitting} className="w-full">
           {isSubmitting ? 'Creating…' : 'Create account'}
         </Button>
       </form>

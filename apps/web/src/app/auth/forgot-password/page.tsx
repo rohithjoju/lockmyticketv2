@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -17,6 +17,11 @@ type Values = z.infer<typeof schema>;
 export default function ForgotPasswordPage() {
   const [sent, setSent] = useState(false);
   const [failure, setFailure] = useState<ApiClientError | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const {
     register,
@@ -57,7 +62,12 @@ export default function ForgotPasswordPage() {
       intro="We will email a one-time link to set a new password."
       footer={<AuthLink href="/auth/login">Back to sign in</AuthLink>}
     >
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
+      <form
+        method="POST"
+        onSubmit={handleSubmit(onSubmit)}
+        className="space-y-5"
+        noValidate
+      >
         {failure ? (
           <Notice title={failure.title} detail={failure.detail} requestId={failure.requestId} />
         ) : null}
@@ -72,7 +82,7 @@ export default function ForgotPasswordPage() {
           />
         </Field>
 
-        <Button type="submit" disabled={isSubmitting} className="w-full">
+        <Button type="submit" disabled={!isMounted || isSubmitting} className="w-full">
           {isSubmitting ? 'Sending…' : 'Send reset link'}
         </Button>
       </form>
