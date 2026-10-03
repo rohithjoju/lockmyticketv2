@@ -24,9 +24,17 @@ const API_ORIGIN = (() => {
  * for those. Inline styles are not an injection vector on their own.
  */
 function contentSecurityPolicy(nonce: string): string {
+  const isDev = process.env.NODE_ENV !== 'production';
+  const scriptSrc = [
+    "'self'",
+    `'nonce-${nonce}'`,
+    "'strict-dynamic'",
+    ...(isDev ? ["'unsafe-eval'"] : []),
+  ].join(' ');
+
   return [
     `default-src 'self'`,
-    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`,
+    `script-src ${scriptSrc}`,
     `style-src 'self' 'unsafe-inline'`,
     `img-src 'self' blob: data: https://res.cloudinary.com`,
     `font-src 'self' data:`,

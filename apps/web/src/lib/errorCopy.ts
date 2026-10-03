@@ -20,6 +20,10 @@ export const ERROR_COPY: Record<ErrorCode, { title: string; detail: string }> = 
     title: 'Sign in to continue',
     detail: 'This page needs to know who you are.',
   },
+  INVALID_CREDENTIALS: {
+    title: 'Invalid email or password',
+    detail: 'Check your spelling and try again.',
+  },
   TOKEN_EXPIRED: {
     title: 'Your session ended',
     detail: 'Sign in again to pick up where you left off.',

@@ -7,6 +7,7 @@
 export const ERROR_CODES = [
   'VALIDATION_FAILED',
   'UNAUTHENTICATED',
+  'INVALID_CREDENTIALS',
   'TOKEN_EXPIRED',
   'FORBIDDEN',
   'ACCOUNT_DISABLED',
@@ -37,6 +38,7 @@ export type ErrorCode = (typeof ERROR_CODES)[number];
 export const ERROR_HTTP_STATUS: Record<ErrorCode, number> = {
   VALIDATION_FAILED: 400,
   UNAUTHENTICATED: 401,
+  INVALID_CREDENTIALS: 401,
   TOKEN_EXPIRED: 401,
   FORBIDDEN: 403,
   ACCOUNT_DISABLED: 403,
@@ -65,6 +67,7 @@ export const ERROR_HTTP_STATUS: Record<ErrorCode, number> = {
 export const ERROR_DEFAULT_MESSAGE: Record<ErrorCode, string> = {
   VALIDATION_FAILED: 'The request was invalid.',
   UNAUTHENTICATED: 'Authentication is required.',
+  INVALID_CREDENTIALS: 'Invalid email or password.',
   TOKEN_EXPIRED: 'Your session has expired. Please sign in again.',
   FORBIDDEN: 'You do not have permission to perform this action.',
   ACCOUNT_DISABLED: 'This account has been disabled.',
