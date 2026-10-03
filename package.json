@@ -13,6 +13,7 @@
     "typecheck": "turbo run typecheck",
     "lint": "turbo run lint",
     "test": "bun test",
+    "test:e2e": "cd tests/automation && bunx playwright test",
     "format": "prettier --write .",
     "supabase": "supabase",
     "supabase:start": "supabase start",
