@@ -10,11 +10,11 @@ const env = getEnv();
 
 const REFRESH_COOKIE = 'refresh_token';
 
-/** httpOnly + Secure + SameSite=Strict (§8). */
+/** httpOnly + Secure + SameSite=Lax (§8). */
 const refreshCookieOptions = {
   httpOnly: true,
   secure: env.NODE_ENV === 'production',
-  sameSite: 'strict' as const,
+  sameSite: 'lax' as const,
   path: '/',
   maxAge: 7 * 24 * 60 * 60,
 };

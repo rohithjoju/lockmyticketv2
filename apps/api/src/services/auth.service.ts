@@ -57,7 +57,7 @@ export async function register(input: {
   name: string;
   email: string;
   password: string;
-}): Promise<{ user: PublicUser; tokens: AuthTokens }> {
+}): Promise<{ user: SessionUserDto; tokens: AuthTokens }> {
   const email = input.email.trim().toLowerCase();
   const passwordHash = await hashPassword(input.password);
 
@@ -77,7 +77,13 @@ export async function register(input: {
   }
 
   const user = rows[0]!;
-  return { user: toPublicUser(user), tokens: await issueTokens(user) };
+  
+  const [sessionUser, tokens] = await Promise.all([
+    getMe(user.id),
+    issueTokens(user),
+  ]);
+
+  return { user: sessionUser, tokens };
 }
 
 /**
@@ -90,7 +96,7 @@ export async function register(input: {
 export async function login(input: {
   email: string;
   password: string;
-}): Promise<{ user: PublicUser; tokens: AuthTokens }> {
+}): Promise<{ user: SessionUserDto; tokens: AuthTokens }> {
   const email = input.email.trim().toLowerCase();
 
   const rows = (await sql`
@@ -98,9 +104,7 @@ export async function login(input: {
   `) as User[];
   const user = rows[0];
 
-  const invalid = new AppError('UNAUTHENTICATED', {
-    message: 'Invalid email or password.',
-  });
+  const invalid = new AppError('INVALID_CREDENTIALS');
 
   if (!user) {
     // Spend comparable time so timing doesn't leak whether the email exists.
@@ -149,7 +153,12 @@ export async function login(input: {
     update users set failed_login_attempts = 0, locked_until = null where id = ${user.id}
   `;
 
-  return { user: toPublicUser(user), tokens: await issueTokens(user) };
+  const [sessionUser, tokens] = await Promise.all([
+    getMe(user.id),
+    issueTokens(user),
+  ]);
+
+  return { user: sessionUser, tokens };
 }
 
 /** Redis key for a denylisted refresh token id. */
