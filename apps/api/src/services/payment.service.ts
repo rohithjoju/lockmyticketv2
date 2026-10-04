@@ -201,6 +201,7 @@ export async function createPaymentOrder(input: {
 
     return {
       paymentId,
+      orderId: order.id,
       razorpayOrderId: order.id,
       amount,
       currency: 'INR',

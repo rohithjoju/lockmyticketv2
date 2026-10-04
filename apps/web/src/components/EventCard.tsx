@@ -27,63 +27,65 @@ export function EventCard({ event }: { event: EventCardData }) {
   const soldOut = event.ticketsLeft === 0;
 
   return (
-    <Link
-      href={`/events/${event.id}`}
-      className="stub group flex flex-col transition hover:-translate-y-0.5 hover:border-line-strong"
-    >
-      <div className="stub-media relative aspect-[16/10] bg-sunk">
-        {event.posterUrl ? (
-          <Image
-            src={event.posterUrl}
-            alt=""
-            fill
-            sizes="(max-width: 768px) 100vw, 380px"
-            className="object-cover transition duration-500 group-hover:scale-[1.03]"
-          />
-        ) : (
-          <div className="grid h-full place-items-center">
-            <span className="font-display text-5xl font-extrabold tracking-[-0.06em] text-line-strong">
-              {event.city}
-            </span>
-          </div>
-        )}
-
-        <div className="absolute left-3 top-3 flex gap-1.5">{statusBadge(event)}</div>
-      </div>
-
-      <div className="flex flex-1 flex-col gap-2 p-4">
-        <p className="tabular text-[11px] uppercase tracking-[0.12em] text-muted">
-          <LocalTime iso={event.startTime} />
-        </p>
-        <h3 className="text-lg leading-tight">{event.title}</h3>
-        <p className="text-sm text-muted">
-          {event.locationName ? `${event.locationName} · ` : ''}
-          {event.city}
-        </p>
-      </div>
-
-      <div className="stub-tear flex items-center justify-between px-4 py-3">
-        <span className="tabular text-sm font-semibold">
-          {event.fromPrice == null ? (
-            <span className="text-muted">See tickets</span>
+    <article className="h-full">
+      <Link
+        href={`/events/${event.id}`}
+        className="stub group flex h-full flex-col transition hover:-translate-y-0.5 hover:border-line-strong"
+      >
+        <div className="stub-media relative aspect-[16/10] bg-sunk">
+          {event.posterUrl ? (
+            <Image
+              src={event.posterUrl}
+              alt=""
+              fill
+              sizes="(max-width: 768px) 100vw, 380px"
+              className="object-cover transition duration-500 group-hover:scale-[1.03]"
+            />
           ) : (
-            <>
-              <span className="text-muted">from </span>
-              {formatPrice(event.fromPrice)}
-            </>
+            <div className="grid h-full place-items-center">
+              <span className="font-display text-5xl font-extrabold tracking-[-0.06em] text-line-strong">
+                {event.city}
+              </span>
+            </div>
           )}
-        </span>
 
-        {soldOut ? (
-          <span className="text-xs font-semibold uppercase tracking-[0.08em] text-danger">
-            Sold out
+          <div className="absolute left-3 top-3 flex gap-1.5">{statusBadge(event)}</div>
+        </div>
+
+        <div className="flex flex-1 flex-col gap-2 p-4">
+          <p className="tabular text-[11px] uppercase tracking-[0.12em] text-muted">
+            <LocalTime iso={event.startTime} />
+          </p>
+          <h3 className="text-lg leading-tight">{event.title}</h3>
+          <p className="text-sm text-muted">
+            {event.locationName ? `${event.locationName} · ` : ''}
+            {event.city}
+          </p>
+        </div>
+
+        <div className="stub-tear flex items-center justify-between px-4 py-3">
+          <span className="tabular text-sm font-semibold">
+            {event.fromPrice == null ? (
+              <span className="text-muted">See tickets</span>
+            ) : (
+              <>
+                <span className="text-muted">from </span>
+                {formatPrice(event.fromPrice)}
+              </>
+            )}
           </span>
-        ) : event.ticketsLeft != null && event.ticketsLeft <= 20 ? (
-          <span className="tabular text-xs font-semibold text-danger">
-            {event.ticketsLeft} left
-          </span>
-        ) : null}
-      </div>
-    </Link>
+
+          {soldOut ? (
+            <span className="text-xs font-semibold uppercase tracking-[0.08em] text-danger">
+              Sold out
+            </span>
+          ) : event.ticketsLeft != null && event.ticketsLeft <= 20 ? (
+            <span className="tabular text-xs font-semibold text-danger">
+              {event.ticketsLeft} left
+            </span>
+          ) : null}
+        </div>
+      </Link>
+    </article>
   );
 }

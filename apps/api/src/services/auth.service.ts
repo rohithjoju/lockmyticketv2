@@ -140,11 +140,6 @@ export async function login(input: {
        where id = ${user.id}
     `;
 
-    if (shouldLock) {
-      throw new AppError('ACCOUNT_LOCKED', {
-        headers: { 'retry-after': String(env.LOGIN_LOCKOUT_MINUTES * 60) },
-      });
-    }
     throw invalid;
   }
 

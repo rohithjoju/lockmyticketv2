@@ -68,6 +68,9 @@ export async function enforceRateLimit(input: {
 
 /** Global per-IP limit (§8: 100/min/IP by default). */
 export function globalLimit(ip: string) {
+  if (process.env.NODE_ENV !== 'production' && (ip === '127.0.0.1' || ip === '::1' || ip === 'unknown')) {
+    return;
+  }
   return enforceRateLimit({
     key: `global:${ip}`,
     limit: env.API_RATE_LIMIT_PER_MINUTE,
@@ -77,5 +80,9 @@ export function globalLimit(ip: string) {
 
 /** Stricter per-IP limit on login (§8: 10/min/IP). */
 export function loginLimit(ip: string) {
+  if (process.env.NODE_ENV !== 'production' && (ip === '127.0.0.1' || ip === '::1' || ip === 'unknown')) {
+    return;
+  }
   return enforceRateLimit({ key: `login:${ip}`, limit: 10, windowSeconds: 60 });
 }
+
