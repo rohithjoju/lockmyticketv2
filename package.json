@@ -27,5 +27,8 @@
     "supabase": "^2.115.0",
     "turbo": "^2",
     "typescript": "^5"
+  },
+  "dependencies": {
+    "qrcode.react": "^4.2.0"
   }
 }
