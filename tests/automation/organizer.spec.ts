@@ -13,7 +13,7 @@ test.describe('Organizer Flows & Event Management', () => {
   test.describe('Organizer Onboarding & Verification Gate', () => {
     test('Functionality: Attendee can view "Host an event" in navigation and visit upgrade page', async ({ page }) => {
       await loginViaUi(page, SEEDED_USERS.attendee1);
-      await expect(page.locator('a:has-text("Host an event")')).toBeVisible();
+      await expect(page.locator('a:has-text("Host an event")').first()).toBeVisible();
 
       await page.goto('/organizer/upgrade');
       await expect(page.locator('h1')).toContainText('Organizer applications open next');
@@ -114,7 +114,7 @@ test.describe('Organizer Flows & Event Management', () => {
   test.describe('Event Lifecycle & Management (Approved Organizer)', () => {
     test('Functionality: Approved organizer navigation bar reflects "Hosting"', async ({ page }) => {
       await loginViaUi(page, SEEDED_USERS.organizer1);
-      await expect(page.locator('a:has-text("Hosting")')).toBeVisible();
+      await expect(page.locator('a:has-text("Hosting")').first()).toBeVisible();
     });
 
     test('Functionality: Approved organizer creates an event with custom refund policy', async ({ request }) => {

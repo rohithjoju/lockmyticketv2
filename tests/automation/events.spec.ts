@@ -59,13 +59,13 @@ test.describe('Events & Discovery Flows', () => {
       await page.goto(`/events/${SEEDED_EVENTS.kochiJazz.id}`);
 
       await expect(page.locator('h1')).toContainText(SEEDED_EVENTS.kochiJazz.title);
-      await expect(page.locator('text=Kochi')).toBeVisible();
+      await expect(page.locator('text=Kochi').first()).toBeVisible();
       await expect(page.locator('text=Marine Drive Amphitheatre')).toBeVisible();
 
       // Check ticket types rendering
       await expect(page.locator('text=General')).toBeVisible();
       await expect(page.locator('text=VIP')).toBeVisible();
-      await expect(page.locator('text=available')).toBeVisible();
+      await expect(page.locator('text=available').first()).toBeVisible();
     });
 
     test('Functionality & Edge Case: Completely sold out ticket tier renders "Sold out" status', async ({ page }) => {
@@ -73,7 +73,7 @@ test.describe('Events & Discovery Flows', () => {
 
       // Seeded Early Bird tier has available_tickets: 0
       await expect(page.locator('text=Early Bird Special')).toBeVisible();
-      await expect(page.locator('text=Sold out')).toBeVisible();
+      await expect(page.getByText('Sold out', { exact: true })).toBeVisible();
     });
 
     test('Functionality & Edge Case: Low-stock ticket tier displays urgency count', async ({ page }) => {

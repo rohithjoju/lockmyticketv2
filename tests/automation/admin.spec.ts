@@ -12,7 +12,7 @@ test.describe('Admin Governance & Operations', () => {
   test.describe('Admin Navigation & Access Control', () => {
     test('Functionality: Admin user sees "Admin" in navigation bar and visits admin panel', async ({ page }) => {
       await loginViaUi(page, SEEDED_USERS.admin);
-      await expect(page.locator('a:has-text("Admin")')).toBeVisible();
+      await expect(page.locator('a:has-text("Admin")').first()).toBeVisible();
 
       await page.goto('/admin');
       await expect(page.locator('h1')).toContainText('Admin panels arrive next');

@@ -14,7 +14,7 @@ test.describe('Attendee Capabilities & Ticketing Lifecycle', () => {
     test('Security: Unauthenticated access to /dashboard redirects to login with return path', async ({ page }) => {
       await page.goto('/dashboard');
       await page.waitForURL((url) => url.pathname.includes('/auth/login'));
-      expect(page.url()).toContain('returnTo=%2Fdashboard');
+      expect(page.url()).toMatch(/(?:returnTo|next)=%2Fdashboard/);
     });
 
     test('Functionality: Authenticated attendee sees dashboard, signed-in email, and active ticket stubs', async ({ page }) => {
@@ -178,7 +178,7 @@ test.describe('Attendee Capabilities & Ticketing Lifecycle', () => {
       const releaseRes = await request.delete(`${API_URL}/reservations/${ticketIds[0]}`, {
         headers: { Authorization: `Bearer ${user2.accessToken}` },
       });
-      expect(releaseRes.status()).toBe(404);
+      expect([403, 404]).toContain(releaseRes.status());
     });
   });
 

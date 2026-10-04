@@ -318,12 +318,11 @@ export async function createRandomUser(request: APIRequestContext) {
   expect(regRes.ok()).toBeTruthy();
   const regBody = await regRes.json();
 
-  const tokenInfo = await getAuthToken(request, { email, password });
   return {
     id: regBody.data.user.id,
     email,
     password,
     name,
-    accessToken: tokenInfo.accessToken,
+    accessToken: regBody.data.accessToken,
   };
 }
