@@ -5,6 +5,7 @@ import type { EventDetailDto } from '@event-ticketing/types';
 import { BookingCta } from '@/components/BookingCta';
 import { LocalTime } from '@/components/LocalTime';
 import { Badge, Notice } from '@/components/ui';
+import { TicketMap } from '@/components/TicketMap';
 import { formatPrice } from '@/lib/datetime';
 import { serverApiOrNull } from '@/lib/serverApi';
 
@@ -119,10 +120,15 @@ export default async function EventDetailPage({ params }: Params) {
                 </dt>
                 <dd className="mt-1">
                   {event.locationName ? <div>{event.locationName}</div> : null}
-                  <div className="text-muted">
+                  <div className="text-muted mb-4">
                     {event.address ? `${event.address}, ` : ''}
                     {event.city}
                   </div>
+                  <TicketMap
+                    latitude={event.latitude}
+                    longitude={event.longitude}
+                    city={event.city}
+                  />
                 </dd>
               </div>
             </dl>
@@ -178,7 +184,7 @@ export default async function EventDetailPage({ params }: Params) {
 
             {onSale && event.ticketTypes.length > 0 ? (
               <div className="stub-tear -mx-5 mt-5 px-5 pt-6">
-                <BookingCta eventId={event.id} soldOut={totalAvailable === 0} />
+                <BookingCta eventId={event.id} soldOut={totalAvailable === 0} ticketTypes={event.ticketTypes} />
                 <p className="mt-3 text-center text-xs text-muted">
                   Tickets are held for 10 minutes once you reserve.
                 </p>

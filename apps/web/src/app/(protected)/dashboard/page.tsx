@@ -1,9 +1,12 @@
 'use client';
 
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import type { TicketDto } from '@event-ticketing/types';
 import { LocalTime } from '@/components/LocalTime';
-import { Badge, ButtonLink, Notice } from '@/components/ui';
+import { TicketQRModal } from '@/components/TicketQRModal';
+import { TicketRefundModal } from '@/components/TicketRefundModal';
+import { Badge, Button, ButtonLink, Notice } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 import { ApiClientError, apiClient } from '@/lib/apiClient';
 import { formatPrice } from '@/lib/datetime';
@@ -19,9 +22,20 @@ function ticketTone(ticket: TicketDto) {
   return { tone: 'past' as const, label: 'Expired' };
 }
 
-/** The QR view for a confirmed ticket lands in Phase 7; the stub is read-only for now. */
-function TicketStub({ ticket }: { ticket: TicketDto }) {
+/** Epic 2.1/2.2 — ticket stub now opens QR or refund modals. */
+function TicketStub({
+  ticket,
+  onQR,
+  onRefund,
+}: {
+  ticket: TicketDto;
+  onQR: () => void;
+  onRefund: () => void;
+}) {
   const { tone, label } = ticketTone(ticket);
+  const canShowQR = ticket.reservationStatus === 'confirmed';
+  const canRefund =
+    ticket.reservationStatus === 'confirmed' && ticket.status === 'valid';
 
   return (
     <div className="stub h-full">
@@ -35,9 +49,25 @@ function TicketStub({ ticket }: { ticket: TicketDto }) {
         <Badge tone={tone}>{label}</Badge>
       </div>
 
-      <div className="stub-tear flex items-center justify-between px-4 py-3">
-        <span className="truncate text-sm text-muted">{ticket.ticketType}</span>
-        <span className="tabular text-sm font-semibold">{formatPrice(ticket.price)}</span>
+      <div className="stub-tear flex flex-col gap-2 px-4 py-3">
+        <div className="flex items-center justify-between">
+          <span className="truncate text-sm text-muted">{ticket.ticketType}</span>
+          <span className="tabular text-sm font-semibold">{formatPrice(ticket.price)}</span>
+        </div>
+
+        {/* Action buttons — QR and refund land in Phase 7 */}
+        <div className="mt-1 flex gap-2">
+          {canShowQR && (
+            <Button variant="quiet" className="h-8 flex-1 text-xs" onClick={onQR}>
+              Show QR
+            </Button>
+          )}
+          {canRefund && (
+            <Button variant="ghost" className="h-8 flex-1 text-xs" onClick={onRefund}>
+              Request refund
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -45,6 +75,8 @@ function TicketStub({ ticket }: { ticket: TicketDto }) {
 
 export default function DashboardPage() {
   const { user } = useAuth();
+  const [qrTicket, setQrTicket] = useState<TicketDto | null>(null);
+  const [refundTicket, setRefundTicket] = useState<TicketDto | null>(null);
 
   const tickets = useQuery({
     queryKey: ['tickets'],
@@ -104,9 +136,22 @@ export default function DashboardPage() {
       ) : (
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {tickets.data.map((ticket) => (
-            <TicketStub key={ticket.id} ticket={ticket} />
+            <TicketStub
+              key={ticket.id}
+              ticket={ticket}
+              onQR={() => setQrTicket(ticket)}
+              onRefund={() => setRefundTicket(ticket)}
+            />
           ))}
         </div>
+      )}
+
+      {/* Modals */}
+      {qrTicket && (
+        <TicketQRModal ticket={qrTicket} onClose={() => setQrTicket(null)} />
+      )}
+      {refundTicket && (
+        <TicketRefundModal ticket={refundTicket} onClose={() => setRefundTicket(null)} />
       )}
     </div>
   );
