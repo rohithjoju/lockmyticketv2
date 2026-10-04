@@ -16,7 +16,7 @@ test.describe('Organizer Flows & Event Management', () => {
       await expect(page.locator('a:has-text("Host an event")').first()).toBeVisible();
 
       await page.goto('/organizer/upgrade');
-      await expect(page.locator('h1')).toContainText('Organizer applications open next');
+      await expect(page.locator('h1')).toContainText('Apply to host events');
     });
 
     test('Error Handling: Invalid phone number (<10 digits or non-digits) is rejected', async ({ request }) => {

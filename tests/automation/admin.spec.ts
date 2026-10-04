@@ -15,7 +15,7 @@ test.describe('Admin Governance & Operations', () => {
       await expect(page.locator('a:has-text("Admin")').first()).toBeVisible();
 
       await page.goto('/admin');
-      await expect(page.locator('h1')).toContainText('Admin panels arrive next');
+      await expect(page.locator('h1')).toContainText('Platform overview');
     });
 
     test('Security: Non-admin users cannot see "Admin" in navigation', async ({ page }) => {
