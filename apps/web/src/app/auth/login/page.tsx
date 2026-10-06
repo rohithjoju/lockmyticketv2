@@ -7,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { AuthCard, AuthLink } from '@/components/AuthCard';
 import { Button, Field, Input, Notice } from '@/components/ui';
+import { PasswordInput } from '@/components/PasswordInput';
 import { useAuth } from '@/hooks/useAuth';
 import { ApiClientError } from '@/lib/apiClient';
 import { RETURN_PARAM, safeReturnTo } from '@/lib/returnTo';
@@ -14,6 +15,7 @@ import { RETURN_PARAM, safeReturnTo } from '@/lib/returnTo';
 const schema = z.object({
   email: z.string().min(1, 'Enter your email').email('That does not look like an email'),
   password: z.string().min(1, 'Enter your password'),
+  rememberMe: z.boolean().optional(),
 });
 
 type Values = z.infer<typeof schema>;
@@ -41,12 +43,15 @@ function LoginForm() {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<Values>({ resolver: zodResolver(schema) });
+  } = useForm<Values>({
+    resolver: zodResolver(schema),
+    defaultValues: { rememberMe: true },
+  });
 
   async function onSubmit(values: Values) {
     setFailure(null);
     try {
-      await signIn(values);
+      await signIn({ email: values.email, password: values.password });
       router.replace(returnTo);
     } catch (error) {
       setFailure(error instanceof ApiClientError ? error : null);
@@ -78,29 +83,38 @@ function LoginForm() {
           <Input
             id="email"
             type="email"
-            autoComplete="email"
+            autoComplete="username email"
             aria-invalid={Boolean(errors.email)}
             {...register('email')}
           />
         </Field>
 
         <Field label="Password" htmlFor="password" error={errors.password?.message}>
-          <Input
+          <PasswordInput
             id="password"
-            type="password"
             autoComplete="current-password"
             aria-invalid={Boolean(errors.password)}
+            hasError={Boolean(errors.password)}
             {...register('password')}
           />
         </Field>
 
+        <div className="flex items-center justify-between text-xs">
+          <label className="flex items-center gap-2 cursor-pointer select-none text-muted hover:text-fg">
+            <input
+              type="checkbox"
+              className="form-checkbox size-3.5 rounded border-line bg-surface text-accent focus:ring-accent"
+              {...register('rememberMe')}
+            />
+            <span>Remember this device</span>
+          </label>
+
+          <AuthLink href="/auth/forgot-password">Forgot password?</AuthLink>
+        </div>
+
         <Button type="submit" disabled={!isMounted || isSubmitting || state === 'authenticated'} className="w-full">
           {isSubmitting ? 'Signing in…' : 'Sign in'}
         </Button>
-
-        <p className="text-center text-sm">
-          <AuthLink href="/auth/forgot-password">Forgot your password?</AuthLink>
-        </p>
       </form>
     </AuthCard>
   );

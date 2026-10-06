@@ -69,20 +69,22 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <Wordmark />
 
           <nav aria-label="Main" className="ml-2 hidden items-center gap-1 md:flex">
-            {items.map((item) => (
-              <Link
-                key={item.key}
-                href={item.href}
-                aria-current={isActive(item.href, pathname) ? 'page' : undefined}
-                className={`rounded-full px-3.5 py-1.5 text-sm font-medium transition ${
-                  isActive(item.href, pathname)
-                    ? 'bg-sunk text-fg'
-                    : 'text-muted hover:text-fg'
-                }`}
-              >
-                {item.label}
-              </Link>
-            ))}
+            {items
+              .filter((item) => item.key !== 'signin')
+              .map((item) => (
+                <Link
+                  key={item.key}
+                  href={item.href}
+                  aria-current={isActive(item.href, pathname) ? 'page' : undefined}
+                  className={`rounded-full px-3.5 py-1.5 text-sm font-medium transition ${
+                    isActive(item.href, pathname)
+                      ? 'bg-sunk text-fg'
+                      : 'text-muted hover:text-fg'
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              ))}
           </nav>
 
           <div className="ml-auto flex items-center gap-2">
@@ -96,7 +98,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       <footer className="hidden border-t border-line py-8 md:block">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-5 text-sm text-muted">
-          <span>Tickets held for 10 minutes. Pay within the window and they are yours.</span>
+          <span>Guaranteed ticket reservations. Nobody sells your seat while you pay.</span>
           <span className="tabular text-xs">v1.0</span>
         </div>
       </footer>
@@ -110,22 +112,22 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             const active = isActive(item.href, pathname);
             return (
               <li key={item.key} className="flex-1">
-                <Link
-                  href={item.href}
-                  aria-current={active ? 'page' : undefined}
-                  className={`flex flex-col items-center gap-1 py-2.5 text-[11px] font-medium transition ${
-                    active ? 'text-fg' : 'text-muted'
-                  }`}
-                >
-                  <span
-                    className={`grid h-7 w-12 place-items-center rounded-full transition ${
-                      active ? 'bg-highlight text-highlight-fg' : ''
+                  <Link
+                    href={item.href}
+                    aria-current={active ? 'page' : undefined}
+                    className={`flex min-h-[48px] flex-col items-center justify-center gap-1 py-1 text-[11px] font-medium transition ${
+                      active ? 'text-fg' : 'text-muted'
                     }`}
                   >
-                    <Icon name={item.icon} className="size-[18px]" />
-                  </span>
-                  {item.label}
-                </Link>
+                    <span
+                      className={`grid h-8 w-12 place-items-center rounded-full transition ${
+                        active ? 'bg-highlight text-highlight-fg' : ''
+                      }`}
+                    >
+                      <Icon name={item.icon} className="size-[18px]" />
+                    </span>
+                    {item.label}
+                  </Link>
               </li>
             );
           })}

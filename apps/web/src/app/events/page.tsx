@@ -1,11 +1,9 @@
 import type { Metadata } from 'next';
 import type { EventDto } from '@event-ticketing/types';
-import { EventCard } from '@/components/EventCard';
-import { EventFeed } from '@/components/EventFeed';
-import { Button, Input } from '@/components/ui';
+import { EventDiscovery } from '@/components/EventDiscovery';
 import { serverApi } from '@/lib/serverApi';
 
-export const metadata: Metadata = { title: 'Browse events' };
+export const metadata: Metadata = { title: 'Browse events · Kochi & beyond' };
 
 const PAGE_SIZE = 12;
 
@@ -16,86 +14,60 @@ function one(value: string | string[] | undefined): string | undefined {
   return first?.trim() ? first.trim() : undefined;
 }
 
-/**
- * A plain GET form. It works before hydration and it puts the search in the
- * URL, which is what people paste to each other.
- */
-function SearchBar({ q, city }: { q?: string; city?: string }) {
-  return (
-    <form className="flex flex-col gap-3 sm:flex-row" role="search">
-      <Input
-        name="q"
-        defaultValue={q ?? ''}
-        placeholder="Search by name — jazz, standup, hackathon"
-        aria-label="Search events"
-        className="sm:flex-[2]"
-      />
-      <Input
-        name="city"
-        defaultValue={city ?? ''}
-        placeholder="City"
-        aria-label="City"
-        className="sm:flex-1"
-      />
-      <Button type="submit" className="sm:w-auto">
-        Search
-      </Button>
-    </form>
-  );
-}
-
 export default async function EventsPage({
   searchParams,
 }: {
   searchParams: Promise<SearchParams>;
 }) {
   const params = await searchParams;
+  
+  // Default to Kochi if not explicitly requested otherwise
+  const cityParam = params.city !== undefined ? one(params.city) : 'Kochi';
   const query = {
     q: one(params.q),
-    city: one(params.city),
+    city: cityParam,
     from: one(params.from),
     to: one(params.to),
   };
 
-  const { data: events, meta } = await serverApi<EventDto[]>('/events', {
-    query: { ...query, limit: PAGE_SIZE },
-  });
+  let events: EventDto[] = [];
+  let cursor: string | null = null;
 
-  const filtered = Boolean(query.q || query.city);
+  try {
+    const res = await serverApi<EventDto[]>('/events', {
+      query: { ...query, limit: PAGE_SIZE },
+    });
+    events = res.data ?? [];
+    cursor = res.meta?.cursor ?? null;
+  } catch {
+    events = [];
+    cursor = null;
+  }
 
   return (
     <div className="mx-auto max-w-6xl px-5 py-10 md:py-14">
       <header className="mb-8">
-        <h1 className="text-4xl">Browse events</h1>
-        <p className="mt-2 text-muted">
-          {filtered
-            ? `Results${query.city ? ` in ${query.city}` : ''}${query.q ? ` for “${query.q}”` : ''}`
-            : 'Everything on sale right now, soonest first.'}
+        <div className="flex items-center gap-2">
+          <span className="size-2 rounded-full bg-highlight" aria-hidden />
+          <span className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
+            Launch Hub: Kochi
+          </span>
+        </div>
+        <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">Browse live events</h1>
+        <p className="mt-1 text-sm text-muted">
+          Discover upcoming shows, indie showcases, and venue drops.
         </p>
       </header>
 
-      <div className="mb-10">
-        <SearchBar {...(query.q ? { q: query.q } : {})} {...(query.city ? { city: query.city } : {})} />
-      </div>
-
-      {events.length === 0 ? (
-        <div className="stub px-6 py-16 text-center">
-          <h2 className="text-2xl">Nothing matches that yet</h2>
-          <p className="mx-auto mt-2 max-w-sm text-muted">
-            Try a broader search, or drop the city filter — organizers add events daily.
-          </p>
-        </div>
-      ) : (
-        <EventFeed
-          initialCursor={meta?.cursor ?? null}
-          initialIds={events.map((event) => event.id)}
-          query={{ ...query, limit: PAGE_SIZE }}
-        >
-          {events.map((event) => (
-            <EventCard key={event.id} event={event} />
-          ))}
-        </EventFeed>
-      )}
+      {/* Live Search, Kochi Priority Pills & Dynamic Feed */}
+      <EventDiscovery
+        initialEvents={events}
+        initialCursor={cursor}
+        initialQuery={{
+          q: query.q,
+          city: query.city,
+        }}
+      />
     </div>
   );
 }

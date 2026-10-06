@@ -30,13 +30,13 @@ export function EventCard({ event }: { event: EventCardData }) {
     <article className="h-full">
       <Link
         href={`/events/${event.id}`}
-        className="stub group flex h-full flex-col transition hover:-translate-y-0.5 hover:border-line-strong"
+        className="stub stub-interactive group flex h-full flex-col transition"
       >
         <div className="stub-media relative aspect-[16/10] bg-sunk">
           {event.posterUrl ? (
             <Image
               src={event.posterUrl}
-              alt=""
+              alt={`Poster for ${event.title}`}
               fill
               sizes="(max-width: 768px) 100vw, 380px"
               className="object-cover transition duration-500 group-hover:scale-[1.03]"
@@ -76,11 +76,12 @@ export function EventCard({ event }: { event: EventCardData }) {
           </span>
 
           {soldOut ? (
-            <span className="text-xs font-semibold uppercase tracking-[0.08em] text-danger">
+            <span className="inline-block -rotate-6 border border-danger/60 bg-danger/10 px-2 py-0.5 text-[11px] font-bold uppercase tracking-[0.14em] text-danger">
               Sold out
             </span>
           ) : event.ticketsLeft != null && event.ticketsLeft <= 20 ? (
-            <span className="tabular text-xs font-semibold text-danger">
+            <span className="tabular inline-flex items-center gap-1.5 text-xs font-semibold text-danger">
+              <span className="size-1.5 animate-pulse rounded-full bg-danger" aria-hidden />
               {event.ticketsLeft} left
             </span>
           ) : null}

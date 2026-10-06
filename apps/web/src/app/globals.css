@@ -23,9 +23,9 @@
   --surface: #ffffff;
   --surface-sunk: #f4f5f8;
   --fg: #101018;
-  --fg-muted: #565a6b;
-  --line: #d9dce4;
-  --line-strong: #b9bdc9;
+  --fg-muted: #484c5c;
+  --line: #d2d5de;
+  --line-strong: #9ea3b5;
   --accent: var(--indigo);
   --accent-fg: #ffffff;
   --highlight: var(--marigold);
@@ -143,6 +143,73 @@
   }
 }
 
+/* ============================================================
+   Over-the-top View Transition (Circular Radial Ripple)
+   ============================================================ */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  z-index: 9999;
+}
+
+.dark::view-transition-old(root),
+[data-theme='dark']::view-transition-old(root) {
+  z-index: 9999;
+}
+
+.dark::view-transition-new(root),
+[data-theme='dark']::view-transition-new(root) {
+  z-index: 1;
+}
+
+/* ============================================================
+   Keyframe Animations for Hero & Live Ticket
+   ============================================================ */
+@keyframes float-ticket {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(0.75deg);
+  }
+}
+
+@keyframes pulse-halo {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(0.96);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.04);
+  }
+}
+
+@keyframes laser-sweep {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(200%);
+  }
+}
+
+.animate-float {
+  animation: float-ticket 6s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+
+.animate-halo {
+  animation: pulse-halo 4s ease-in-out infinite;
+}
+
 @layer components {
   /* ----------------------------------------------------------
      The signature: a ticket stub. A dashed tear line with a real
@@ -154,6 +221,13 @@
     background-color: var(--surface);
     border: 1px solid var(--line);
     border-radius: var(--radius-stub);
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease;
+  }
+
+  .stub-interactive:hover {
+    transform: translateY(-6px) scale(1.015);
+    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.35);
+    border-color: var(--line-strong);
   }
 
   /* Media inside a stub clips itself; the stub cannot, or it would cut the
@@ -179,6 +253,7 @@
     border-radius: 9999px;
     background-color: var(--paper);
     border: 1px solid var(--line);
+    transition: background-color 0.3s ease;
   }
 
   .stub-tear::before {
