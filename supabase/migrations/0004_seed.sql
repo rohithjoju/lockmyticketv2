@@ -164,7 +164,7 @@ insert into events (
    'music', 'Marine Drive Amphitheatre', 'Marine Drive Promenade, Kochi',
    'Kochi', 9.9816, 76.2999,
    now() + interval '10 days', now() + interval '10 days' + interval '4 hours',
-   'https://res.cloudinary.com/demo/image/upload/v1/concert_jazz.jpg', null,
+   'https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=1200&auto=format&fit=crop&q=80', null,
    '{}', 'Gates open 1 hour before showtime. No outside food or beverages allowed.',
    '{"full_refund_hours": 48, "partial_refund_percent": 50}'::jsonb, 'approved', false, null),
 
@@ -175,7 +175,7 @@ insert into events (
    'conference', 'BKC Convention Centre', 'G Block, Bandra Kurla Complex, Mumbai',
    'Mumbai', 19.0662, 72.8691,
    now() + interval '30 days', now() + interval '30 days' + interval '9 hours',
-   'https://res.cloudinary.com/demo/image/upload/v1/tech_summit.jpg', null,
+   'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=1200&auto=format&fit=crop&q=80', null,
    '{}', 'Laptops allowed. High speed WiFi and boxed lunches included with conference badges.',
    '{"full_refund_hours": 72, "partial_refund_percent": 60}'::jsonb, 'approved', false, null),
 
@@ -186,7 +186,7 @@ insert into events (
    'music', 'Siri Fort Auditorium', 'August Kranti Marg, New Delhi',
    'Delhi', 28.5492, 77.2185,
    now() + interval '5 days', now() + interval '5 days' + interval '3 hours 30 minutes',
-   'https://res.cloudinary.com/demo/image/upload/v1/sufi_rock.jpg', null,
+   'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=1200&auto=format&fit=crop&q=80', null,
    '{}', 'Parking available at venue basement. Age 12+ recommended.',
    '{"full_refund_hours": 24, "partial_refund_percent": 40}'::jsonb, 'approved', false, null),
 
@@ -197,7 +197,7 @@ insert into events (
    'comedy', 'The Black Rabbit Arena', '100ft Road, Indiranagar, Bengaluru',
    'Bengaluru', 12.9716, 77.6412,
    now() + interval '3 days', now() + interval '3 days' + interval '2 hours',
-   'https://res.cloudinary.com/demo/image/upload/v1/comedy_special.jpg', null,
+   'https://images.unsplash.com/photo-1585699324551-f6c309eedeca?w=1200&auto=format&fit=crop&q=80', null,
    '{}', 'Strictly 18+. Audience interaction and mild language included.',
    '{"full_refund_hours": 24, "partial_refund_percent": 50}'::jsonb, 'approved', false, null),
 
@@ -208,7 +208,7 @@ insert into events (
    'music', 'Curleys Beach Club', 'South Anjuna Beach, Anjuna, Goa',
    'Goa', 15.5802, 73.7423,
    now() + interval '45 days', now() + interval '45 days' + interval '12 hours',
-   'https://res.cloudinary.com/demo/image/upload/v1/goa_sun.jpg', null,
+   'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=1200&auto=format&fit=crop&q=80', null,
    '{}', 'Wristband collection at entrance. Re-entry permitted with active wristband.',
    '{"full_refund_hours": 96, "partial_refund_percent": 50}'::jsonb, 'approved', false, null),
 
@@ -219,7 +219,7 @@ insert into events (
    'conference', 'HICC Novotel Arena', 'Hitec City, Madhapur, Hyderabad',
    'Hyderabad', 17.4716, 78.3736,
    now() + interval '14 days', now() + interval '14 days' + interval '8 hours',
-   'https://res.cloudinary.com/demo/image/upload/v1/ai_deeptech.jpg', null,
+   'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=1200&auto=format&fit=crop&q=80', null,
    '{}', 'Business formal attire required. Networking lounge open to all badge holders.',
    '{"full_refund_hours": 48, "partial_refund_percent": 50}'::jsonb, 'approved', false, null),
 
@@ -230,7 +230,7 @@ insert into events (
    'music', 'The Music Academy', 'TTK Road, Royapettah, Chennai',
    'Chennai', 13.0427, 78.0267,
    now() + interval '21 days', now() + interval '21 days' + interval '3 hours',
-   'https://res.cloudinary.com/demo/image/upload/v1/carnatic.jpg', null,
+   'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=1200&auto=format&fit=crop&q=80', null,
    '{}', 'Silence phones during performances. Recording strictly prohibited.',
    '{"full_refund_hours": 48, "partial_refund_percent": 50}'::jsonb, 'approved', false, null),
 
@@ -241,7 +241,7 @@ insert into events (
    'theatre', 'Rabindra Sadan', 'Cathedral Road, Kolkata',
    'Kolkata', 22.5448, 88.3426,
    now() + interval '18 days', now() + interval '18 days' + interval '4 hours',
-   'https://res.cloudinary.com/demo/image/upload/v1/theatre.jpg', null,
+   'https://images.unsplash.com/photo-1460723237483-7a6dc9d0b212?w=1200&auto=format&fit=crop&q=80', null,
    '{}', 'Subtitles projected in English above the stage for non-Bengali speakers.',
    '{"full_refund_hours": 48, "partial_refund_percent": 50}'::jsonb, 'approved', false, null),
 
@@ -252,7 +252,7 @@ insert into events (
    'food', 'Mahalaxmi Lawns', 'Karve Nagar, Pune',
    'Pune', 18.4907, 73.8166,
    now() + interval '7 days', now() + interval '7 days' + interval '8 hours',
-   'https://res.cloudinary.com/demo/image/upload/v1/craft_brew.jpg', null,
+   'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=1200&auto=format&fit=crop&q=80', null,
    '{}', 'Government photo ID mandatory for age verification at brewery counters.',
    '{"full_refund_hours": 48, "partial_refund_percent": 50}'::jsonb, 'approved', false, null),
 
@@ -263,7 +263,7 @@ insert into events (
    'conference', 'IIT Bombay Research Park', 'Powai, Mumbai',
    'Mumbai', 19.1334, 72.9133,
    now() - interval '2 hours', now() + interval '22 hours',
-   'https://res.cloudinary.com/demo/image/upload/v1/hackathon.jpg', null,
+   'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=1200&auto=format&fit=crop&q=80', null,
    '{}', 'Hacking in progress. On-site mentors and cloud compute vouchers provided.',
    '{"full_refund_hours": 0, "partial_refund_percent": 0}'::jsonb, 'approved', false, null),
 
@@ -274,7 +274,7 @@ insert into events (
    'food', 'Jayabheri Meadows', 'Whitefield, Bengaluru',
    'Bengaluru', 12.9698, 77.7499,
    now() - interval '1 hour', now() + interval '6 hours',
-   'https://res.cloudinary.com/demo/image/upload/v1/flea_market.jpg', null,
+   'https://images.unsplash.com/photo-1533900298318-6b8da08a523e?w=1200&auto=format&fit=crop&q=80', null,
    '{}', 'Pets welcome on leashes. Re-entry allowed all day.',
    '{"full_refund_hours": 0, "partial_refund_percent": 0}'::jsonb, 'approved', false, null),
 
@@ -285,7 +285,7 @@ insert into events (
    'food', 'Palace Grounds', 'Jayachamarajendra Road, Bengaluru',
    'Bengaluru', 12.9985, 77.5921,
    now() - interval '20 days', now() - interval '20 days' + interval '8 hours',
-   'https://res.cloudinary.com/demo/image/upload/v1/food_fest.jpg', null,
+   'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200&auto=format&fit=crop&q=80', null,
    '{}', 'Event has concluded.',
    '{"full_refund_hours": 48, "partial_refund_percent": 50}'::jsonb, 'approved', false, null),
 
@@ -296,7 +296,7 @@ insert into events (
    'sports', 'Jawaharlal Nehru Stadium', 'Kaloor, Kochi',
    'Kochi', 9.9988, 76.3001,
    now() - interval '40 days', now() - interval '40 days' + interval '6 hours',
-   'https://res.cloudinary.com/demo/image/upload/v1/marathon.jpg', null,
+   'https://images.unsplash.com/photo-1452626038306-9aae5e071dd3?w=1200&auto=format&fit=crop&q=80', null,
    '{}', 'Event has concluded.',
    '{"full_refund_hours": 48, "partial_refund_percent": 50}'::jsonb, 'approved', false, null),
 
@@ -307,7 +307,7 @@ insert into events (
    'music', 'Garden of Five Senses', 'Said-ul-Ajaib, New Delhi',
    'Delhi', 28.5135, 77.1997,
    now() + interval '4 days', now() + interval '4 days' + interval '5 hours',
-   'https://res.cloudinary.com/demo/image/upload/v1/acoustic.jpg', null,
+   'https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=1200&auto=format&fit=crop&q=80', null,
    '{}', 'Event cancelled. All ticket holders automatically issued 100% refunds.',
    '{"full_refund_hours": 48, "partial_refund_percent": 50}'::jsonb, 'approved', false, now() - interval '1 day'),
 
@@ -318,7 +318,7 @@ insert into events (
    'music', 'Warehouse 14', 'Willingdon Island, Kochi',
    'Kochi', 9.9542, 76.2691,
    now() + interval '12 days', now() + interval '12 days' + interval '6 hours',
-   'https://res.cloudinary.com/demo/image/upload/v1/underground.jpg', null,
+   'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=1200&auto=format&fit=crop&q=80', null,
    '{}', 'Under review by platform trust and safety.',
    '{"full_refund_hours": 48, "partial_refund_percent": 50}'::jsonb, 'approved', true, null);
 

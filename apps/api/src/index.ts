@@ -35,7 +35,15 @@ export function createApp() {
       // still carry a correlation id into the envelope (R9).
       .use(requestIdPlugin)
       .use(errorHandlerPlugin)
-      .use(cors({ origin: env.WEB_URL, credentials: true }))
+      .use(
+        cors({
+          origin: [env.WEB_URL, 'https://zoogleal-consciously-eliseo.ngrok-free.dev'],
+          credentials: true,
+        }),
+      )
+
+      // .use(cors({ origin: env.WEB_URL, credentials: true }))
+      // .use(cors({ origin: 'https://zoogleal-consciously-eliseo.ngrok-free.dev', credentials: true }))
       .use(
         swagger({
           path: '/docs',

@@ -15,14 +15,19 @@ const nextConfig: NextConfig = {
     NEXT_PUBLIC_API_URL: process.env.API_URL ?? 'http://localhost:3001',
     NEXT_PUBLIC_SUPABASE_URL: process.env.SUPABASE_URL ?? '',
     NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY ?? '',
+    NEXT_PUBLIC_RAZORPAY_KEY_ID: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID ?? process.env.RAZORPAY_KEY_ID ?? '',
+    NEXT_PUBLIC_MAPBOX_TOKEN: process.env.NEXT_PUBLIC_MAPBOX_TOKEN ?? '',
   },
 
   // The shared packages ship TypeScript source, not a build artifact.
   transpilePackages: ['@event-ticketing/types'],
 
-  // Cloudinary is the only image host we serve event media from.
   images: {
-    remotePatterns: [{ protocol: 'https', hostname: 'res.cloudinary.com' }],
+    remotePatterns: [
+      { protocol: 'https', hostname: 'res.cloudinary.com' },
+      { protocol: 'https', hostname: 'images.unsplash.com' },
+      { protocol: 'https', hostname: 'plus.unsplash.com' },
+    ],
   },
 
   async headers() {
@@ -36,7 +41,7 @@ const nextConfig: NextConfig = {
           {
             key: 'Permissions-Policy',
             // `camera` stays open: the organizer QR scanner needs it (Phase 7).
-            value: 'camera=(self), microphone=(), geolocation=(self), payment=(self)',
+            value: 'camera=(self), microphone=(), geolocation=(self), payment=(self "https://api.razorpay.com" "https://checkout.razorpay.com")',
           },
         ],
       },
