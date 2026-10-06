@@ -19,7 +19,7 @@ type Props = {
 type BookingState =
   | { phase: 'idle' }
   | { phase: 'reserved'; ticketIds: string[]; expiresAt: string; selectedType: TicketTypeDto; quantity: number }
-  | { phase: 'paying' }
+  | { phase: 'paying'; ticketIds: string[]; expiresAt: string; selectedType: TicketTypeDto; quantity: number }
   | { phase: 'expired' };
 
 /**

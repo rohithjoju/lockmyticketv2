@@ -1,5 +1,6 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import type { TicketDto } from '@event-ticketing/types';
@@ -10,7 +11,7 @@ import { Badge, Button } from './ui';
 /* QRCode.react is the package listed in SPEC §4.1 */
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const { QRCodeSVG } = require('qrcode.react') as {
-  QRCodeSVG: (props: { value: string; size: number; level: string }) => JSX.Element;
+  QRCodeSVG: (props: { value: string; size: number; level: string }) => ReactNode;
 };
 
 type FullTicketDto = TicketDto & { qrToken: string | null };

@@ -26,13 +26,61 @@ export function ThemeProvider({
 }) {
   const [theme, setThemeState] = useState<Theme>(initial);
 
-  const setTheme = useCallback((next: Theme) => {
-    setThemeState(next);
-    document.cookie = themeCookie(next);
-    applyTheme(next, document.documentElement);
-  }, []);
+  const setTheme = useCallback(
+    (next: Theme, event?: React.MouseEvent | MouseEvent) => {
+      // Check if View Transition API is supported and user doesn't prefer reduced motion
+      const prefersReducedMotion =
+        typeof window !== 'undefined' &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  const cycle = useCallback(() => setTheme(nextTheme(theme)), [setTheme, theme]);
+      if (!document.startViewTransition || prefersReducedMotion) {
+        setThemeState(next);
+        document.cookie = themeCookie(next);
+        applyTheme(next, document.documentElement);
+        return;
+      }
+
+      // Calculate origin coordinates for the circular ripple
+      const x = event?.clientX ?? window.innerWidth / 2;
+      const y = event?.clientY ?? window.innerHeight / 2;
+      const endRadius = Math.hypot(
+        Math.max(x, window.innerWidth - x),
+        Math.max(y, window.innerHeight - y),
+      );
+
+      const transition = document.startViewTransition(() => {
+        setThemeState(next);
+        document.cookie = themeCookie(next);
+        applyTheme(next, document.documentElement);
+      });
+
+      transition.ready.then(() => {
+        // Animate circular clip-path expanding across the entire viewport
+        const clipPath = [
+          `circle(0px at ${x}px ${y}px)`,
+          `circle(${endRadius}px at ${x}px ${y}px)`,
+        ];
+        document.documentElement.animate(
+          {
+            clipPath: clipPath,
+          },
+          {
+            duration: 650,
+            easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
+            pseudoElement: '::view-transition-new(root)',
+          },
+        );
+      });
+    },
+    [],
+  );
+
+  const cycle = useCallback(
+    (e?: React.MouseEvent) => {
+      setTheme(nextTheme(theme), e);
+    },
+    [setTheme, theme],
+  );
 
   const value = useMemo(() => ({ theme, setTheme, cycle }), [theme, setTheme, cycle]);
 

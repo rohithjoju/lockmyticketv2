@@ -239,7 +239,27 @@ export function buildEventSearchQuery(filters: EventFilters): {
   const where = ['e.cancelled_at is null'];
 
   if (filters.q) {
-    where.push(`e.search_vector @@ websearch_to_tsquery('english', ${bind(filters.q)})`);
+    const rawQ = filters.q.trim();
+    // 1. Build prefix-aware tsquery tokens: "rock band" -> "rock:* | band:*"
+    const sanitizedWords = rawQ
+      .replace(/[^\w\s]/g, '')
+      .split(/\s+/)
+      .filter(Boolean);
+    const prefixTsquery = sanitizedWords.map((w) => `${w}:*`).join(' | ');
+
+    // 2. Trigram similarity match parameter
+    const trigramParam = `%${rawQ}%`;
+
+    // 3. Match either tsquery full-text/prefix OR trigram fuzzy similarity on title/description/location/event_type
+    where.push(`(
+      (e.search_vector @@ websearch_to_tsquery('english', ${bind(rawQ)}))
+      ${prefixTsquery ? `or (e.search_vector @@ to_tsquery('english', ${bind(prefixTsquery)}))` : ''}
+      or (e.title ilike ${bind(trigramParam)})
+      or (coalesce(e.description, '') ilike ${bind(trigramParam)})
+      or (coalesce(e.event_type, '') ilike ${bind(trigramParam)})
+      or (coalesce(e.location_name, '') ilike ${bind(trigramParam)})
+      or (similarity(e.title, ${bind(rawQ)}) > 0.15)
+    )`);
   }
   if (filters.city) {
     where.push(`lower(e.city) = lower(${bind(filters.city)})`);

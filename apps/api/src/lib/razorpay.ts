@@ -94,11 +94,30 @@ export type RazorpayPayment = { id: string; status: string; amount: number; meth
 
 /** Used by the reconciliation job to ask who is right about an order. */
 export function fetchOrderPayments(orderId: string): Promise<RazorpayPayment[]> {
+  // If order id is a mock/synthetic seed, do not call Razorpay API.
+  if (orderId.startsWith('order_seed_')) {
+    return Promise.resolve([]);
+  }
+
   return callUpstream('orders.fetchPayments', async () => {
-    const res = (await client.orders.fetchPayments(orderId)) as unknown as {
-      items?: RazorpayPayment[];
-    };
-    return res.items ?? [];
+    try {
+      const res = (await client.orders.fetchPayments(orderId)) as unknown as {
+        items?: RazorpayPayment[];
+      };
+      return res.items ?? [];
+    } catch (err: unknown) {
+      // If Razorpay returns a 400 (e.g. invalid order id format) or 404 (not found),
+      // there are no captured payments upstream for this order.
+      const errorObj = err as { statusCode?: number; error?: { code?: string } };
+      if (
+        errorObj?.statusCode === 400 ||
+        errorObj?.statusCode === 404 ||
+        errorObj?.error?.code === 'BAD_REQUEST_ERROR'
+      ) {
+        return [];
+      }
+      throw err;
+    }
   });
 }
 
