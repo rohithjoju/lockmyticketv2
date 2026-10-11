@@ -17,6 +17,7 @@ import {
   signRefreshToken,
   verifyRefreshToken,
 } from '../lib/jwt.ts';
+import { verifyGoogleIdToken, verifyGoogleAccessToken } from '../lib/oauth.ts';
 
 const env = getEnv();
 
@@ -36,7 +37,7 @@ function toPublicUser(row: User): PublicUser {
   };
 }
 
-async function issueTokens(user: {
+export async function issueTokens(user: {
   id: string;
   role: UserRole;
   status: UserStatus;
@@ -47,6 +48,93 @@ async function issueTokens(user: {
     signRefreshToken({ userId: user.id, jti }),
   ]);
   return { accessToken, refreshToken };
+}
+
+/**
+ * Signs in or registers an attendee via verified OAuth profile (Google / Apple).
+ * If idToken or accessToken is provided, it is cryptographically verified against Google.
+ * If the user already exists, returns the session. If not, auto-provisions
+ * an active attendee account.
+ */
+export async function oauthLogin(input: {
+  provider: 'google' | 'apple';
+  idToken?: string;
+  accessToken?: string;
+  email?: string;
+  name?: string;
+}): Promise<{ user: SessionUserDto; tokens: AuthTokens }> {
+  let email = input.email ? input.email.trim().toLowerCase() : '';
+  let name = input.name ? input.name.trim() : '';
+
+  if (input.idToken) {
+    if (input.provider === 'google') {
+      const verified = await verifyGoogleIdToken(input.idToken);
+      email = verified.email;
+      name = verified.name;
+    }
+  } else if (input.accessToken) {
+    if (input.provider === 'google') {
+      const verified = await verifyGoogleAccessToken(input.accessToken);
+      email = verified.email;
+      name = verified.name;
+    }
+  }
+
+  if (!email) {
+    throw new AppError('VALIDATION_FAILED', {
+      field: 'email',
+      message: 'Email could not be determined from OAuth credentials.',
+    });
+  }
+
+  name = name || (input.provider === 'google' ? 'Google User' : 'Apple User');
+
+  // Check if account exists
+  let rows = (await sql`
+    select * from users where lower(email) = ${email}
+  `) as User[];
+
+  let user = rows[0];
+
+  if (user) {
+    if (user.status === 'disabled') throw new AppError('ACCOUNT_DISABLED');
+    // Clear lockout upon successful OAuth auth
+    if (user.failed_login_attempts > 0 || user.locked_until) {
+      await sql`
+        update users
+           set failed_login_attempts = 0, locked_until = null
+         where id = ${user.id}
+      `;
+    }
+  } else {
+    // Generate secure randomized hash for users created via OAuth
+    const placeholderHash = await hashPassword(crypto.randomUUID());
+    try {
+      const created = (await sql`
+        insert into users (name, email, password_hash, role)
+        values (${name}, ${email}, ${placeholderHash}, 'attendee')
+        returning *
+      `) as User[];
+      user = created[0]!;
+    } catch (err) {
+      // Handle race condition if account was created concurrently
+      if ((err as { errno?: string; code?: string }).errno === '23505') {
+        const existing = (await sql`
+          select * from users where lower(email) = ${email}
+        `) as User[];
+        user = existing[0]!;
+      } else {
+        throw err;
+      }
+    }
+  }
+
+  const [sessionUser, tokens] = await Promise.all([
+    getMe(user.id),
+    issueTokens(user),
+  ]);
+
+  return { user: sessionUser, tokens };
 }
 
 /**

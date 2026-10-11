@@ -5,9 +5,14 @@ import { useRouter } from 'next/navigation';
 import { apiClient } from '@/lib/apiClient';
 
 export type PaymentOrder = {
-  orderId: string;
-  amount: number; // paise
+  paymentId?: string;
+  orderId?: string;
+  razorpayOrderId?: string;
+  keyId?: string;
+  amount: number; // in Rupees from API or paise
   currency: string;
+  ticketIds?: string[];
+  expiresAt?: string;
 };
 
 export type RazorpayPaymentResponse = {
@@ -16,10 +21,19 @@ export type RazorpayPaymentResponse = {
   razorpay_signature: string;
 };
 
-export type ConfirmedTicket = {
-  id: string;
-  eventTitle: string;
-  ticketType: string;
+export type ConfirmedPurchase = {
+  paymentId: string;
+  razorpayOrderId: string;
+  razorpayPaymentId: string | null;
+  status: string;
+  amount: number;
+  alreadyProcessed: boolean;
+  tickets: Array<{
+    id: string;
+    eventId: string;
+    ticketType: string;
+    qrToken: string | null;
+  }>;
 };
 
 declare global {
@@ -70,8 +84,8 @@ export function usePayment(user: { name: string; email: string } | null) {
   });
 
   const verifyMutation = useMutation({
-    mutationFn: async (response: RazorpayPaymentResponse): Promise<ConfirmedTicket[]> => {
-      const { data } = await apiClient.post<ConfirmedTicket[]>('/payments/verify', {
+    mutationFn: async (response: RazorpayPaymentResponse): Promise<ConfirmedPurchase> => {
+      const { data } = await apiClient.post<ConfirmedPurchase>('/payments/verify', {
         razorpay_order_id: response.razorpay_order_id,
         razorpay_payment_id: response.razorpay_payment_id,
         razorpay_signature: response.razorpay_signature,
@@ -88,12 +102,26 @@ export function usePayment(user: { name: string; email: string } | null) {
   const openCheckout = async (order: PaymentOrder, onDismiss?: () => void) => {
     await loadRazorpayScript();
 
+    const orderId = order.orderId ?? order.razorpayOrderId;
+    if (!orderId) {
+      throw new Error('Order ID is missing from payment order response.');
+    }
+
+    const key = order.keyId || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
+    if (!key) {
+      throw new Error('Razorpay Key ID is not configured.');
+    }
+
+    // Backend provides amount in Rupees (e.g. 500). Razorpay checkout expects paise.
+    // If amount is already in paise (> 100 with decimals or integer), ensure Math.round.
+    const amountInPaise = Math.round(order.amount * 100);
+
     return new Promise<void>((resolve, reject) => {
       const rzp = new window.Razorpay({
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-        order_id: order.orderId,
-        amount: order.amount,
-        currency: order.currency,
+        key,
+        order_id: orderId,
+        amount: amountInPaise,
+        currency: order.currency ?? 'INR',
         name: 'LockMyTicket',
         description: 'Ticket purchase',
         prefill: {
@@ -117,6 +145,16 @@ export function usePayment(user: { name: string; email: string } | null) {
         },
         theme: { color: '#6366f1' },
       });
+
+      rzp.on('payment.failed', (data: unknown) => {
+        const response = data as { error?: { description?: string; reason?: string } } | undefined;
+        const errorMsg =
+          response?.error?.description ??
+          response?.error?.reason ??
+          'Payment failed at the gateway.';
+        reject(new Error(errorMsg));
+      });
+
       rzp.open();
     });
   };

@@ -67,6 +67,31 @@ export const authRoutes = new Elysia({ prefix: '/auth' })
     { body: t.Object({ email: emailSchema, password: t.String({ minLength: 1 }) }) },
   )
 
+  .post(
+    '/oauth',
+    async ({ body, cookie, requestId }) => {
+      const { user, tokens } = await authService.oauthLogin({
+        provider: body.provider,
+        idToken: body.idToken,
+        accessToken: body.accessToken,
+        email: body.email,
+        name: body.name,
+      });
+
+      cookie[REFRESH_COOKIE]?.set({ value: tokens.refreshToken, ...refreshCookieOptions });
+      return toEnvelope({ user, accessToken: tokens.accessToken }, { requestId });
+    },
+    {
+      body: t.Object({
+        provider: t.Union([t.Literal('google'), t.Literal('apple')]),
+        idToken: t.Optional(t.String()),
+        accessToken: t.Optional(t.String()),
+        email: t.Optional(emailSchema),
+        name: t.Optional(t.String({ minLength: 1, maxLength: 120 })),
+      }),
+    },
+  )
+
   .post('/refresh', async ({ cookie, requestId, body }) => {
     // Accept the token from the httpOnly cookie, or the body for non-browser
     // clients that cannot hold cookies.

@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { cookies } from 'next/headers';
+import Script from 'next/script';
 import { Bricolage_Grotesque, Instrument_Sans, Martian_Mono } from 'next/font/google';
 import { AppShell } from '@/components/AppShell';
 import { parseTheme, THEME_COOKIE, themeAttribute } from '@/lib/theme';
@@ -62,6 +63,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <div id="main">{children}</div>
           </AppShell>
         </Providers>
+        <Script src="https://accounts.google.com/gsi/client" strategy="afterInteractive" />
       </body>
     </html>
   );

@@ -3,7 +3,7 @@ import { sql, uuidArray, withTransaction, type Tx } from '../db/transaction.ts';
 import { AppError } from '../lib/errors.ts';
 import { signQrToken } from '../lib/jwt.ts';
 import { logger } from '../lib/logger.ts';
-import { createOrder, isValidPaymentSignature } from '../lib/razorpay.ts';
+import { createOrder, isValidPaymentSignature, RAZORPAY_KEY_ID } from '../lib/razorpay.ts';
 import { emailQueue, enqueueBestEffort, jobIds } from '../queues/index.ts';
 import type { Actor } from './event.service.ts';
 
@@ -30,7 +30,9 @@ export type ConfirmedPurchase = {
 
 export type PaymentOrder = {
   paymentId: string;
+  orderId: string;
   razorpayOrderId: string;
+  keyId: string;
   amount: number;
   currency: string;
   ticketIds: string[];
@@ -135,7 +137,9 @@ export async function createPaymentOrder(input: {
     if (existing && existing.status === 'pending') {
       return {
         paymentId: existing.id,
+        orderId: existing.razorpay_order_id,
         razorpayOrderId: existing.razorpay_order_id,
+        keyId: RAZORPAY_KEY_ID,
         amount: Number(existing.amount),
         currency: existing.currency,
         ticketIds: tickets.map((t) => t.id),
@@ -203,6 +207,7 @@ export async function createPaymentOrder(input: {
       paymentId,
       orderId: order.id,
       razorpayOrderId: order.id,
+      keyId: RAZORPAY_KEY_ID,
       amount,
       currency: 'INR',
       ticketIds: input.ticketIds,

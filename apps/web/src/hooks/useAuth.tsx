@@ -16,6 +16,13 @@ type AuthContextValue = {
   state: SessionState;
   signIn: (input: { email: string; password: string }) => Promise<SessionUserDto>;
   register: (input: { name: string; email: string; password: string }) => Promise<SessionUserDto>;
+  oauthLogin: (input: {
+    provider: 'google' | 'apple';
+    idToken?: string;
+    accessToken?: string;
+    email?: string;
+    name?: string;
+  }) => Promise<SessionUserDto>;
   signOut: () => Promise<void>;
   reload: () => Promise<void>;
 };
@@ -81,6 +88,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setAccessToken(data.accessToken);
     setUser(data.user);
     setState('authenticated');
+    try {
+      localStorage.setItem(
+        'lmt_saved_user',
+        JSON.stringify({
+          name: data.user.name,
+          email: data.user.email,
+          role: data.user.role,
+        }),
+      );
+    } catch {}
     return data.user;
   }, []);
 
@@ -90,6 +107,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setAccessToken(data.accessToken);
       setUser(data.user);
       setState('authenticated');
+      try {
+        localStorage.setItem(
+          'lmt_saved_user',
+          JSON.stringify({
+            name: data.user.name,
+            email: data.user.email,
+            role: data.user.role,
+          }),
+        );
+      } catch {}
+      return data.user;
+    },
+    [],
+  );
+
+  const oauthLogin = useCallback(
+    async (input: {
+      provider: 'google' | 'apple';
+      idToken?: string;
+      accessToken?: string;
+      email?: string;
+      name?: string;
+    }) => {
+      const { data } = await apiClient.post<LoginResponse>('/auth/oauth', input);
+      setAccessToken(data.accessToken);
+      setUser(data.user);
+      setState('authenticated');
+      try {
+        localStorage.setItem(
+          'lmt_saved_user',
+          JSON.stringify({
+            name: data.user.name,
+            email: data.user.email,
+            role: data.user.role,
+          }),
+        );
+      } catch {}
       return data.user;
     },
     [],
@@ -117,8 +171,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [loadMe]);
 
   const value = useMemo(
-    () => ({ user, state, signIn, register, signOut, reload }),
-    [user, state, signIn, register, signOut, reload],
+    () => ({ user, state, signIn, register, oauthLogin, signOut, reload }),
+    [user, state, signIn, register, oauthLogin, signOut, reload],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -9,6 +9,7 @@ import { AuthCard, AuthLink } from '@/components/AuthCard';
 import { Button, Field, Input, Notice } from '@/components/ui';
 import { PasswordInput } from '@/components/PasswordInput';
 import { PasswordStrengthMeter } from '@/components/PasswordStrengthMeter';
+import { OAuthButtons } from '@/components/OAuthButtons';
 import { useAuth } from '@/hooks/useAuth';
 import { ApiClientError } from '@/lib/apiClient';
 import { RETURN_PARAM, safeReturnTo } from '@/lib/returnTo';
@@ -35,7 +36,7 @@ const schema = z
 type Values = z.infer<typeof schema>;
 
 function RegisterForm() {
-  const { register: createAccount } = useAuth();
+  const { register: createAccount, state } = useAuth();
   const router = useRouter();
   const params = useSearchParams();
   const [failure, setFailure] = useState<ApiClientError | null>(null);
@@ -44,6 +45,14 @@ function RegisterForm() {
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  const returnTo = safeReturnTo(params.get(RETURN_PARAM));
+
+  useEffect(() => {
+    if (state === 'authenticated') {
+      router.replace(returnTo);
+    }
+  }, [state, router, returnTo]);
 
   const {
     register,
@@ -64,7 +73,7 @@ function RegisterForm() {
         email: values.email,
         password: values.password,
       });
-      router.replace(safeReturnTo(params.get(RETURN_PARAM)));
+      router.replace(returnTo);
     } catch (error) {
       setFailure(error instanceof ApiClientError ? error : null);
     }
@@ -81,15 +90,25 @@ function RegisterForm() {
         </>
       }
     >
-      <form
-        method="POST"
-        onSubmit={handleSubmit(onSubmit)}
-        className="space-y-4"
-        noValidate
-      >
+      <div className="space-y-6">
         {failure ? (
           <Notice title={failure.title} detail={failure.detail} requestId={failure.requestId} />
         ) : null}
+
+        {/* 1. Fast-Track OAuth Setup */}
+        <OAuthButtons
+          labelPrefix="Sign up"
+          onSuccess={() => router.replace(returnTo)}
+          onError={(err) => setFailure(err)}
+        />
+
+        {/* 2. Credentials Registration Form */}
+        <form
+          method="POST"
+          onSubmit={handleSubmit(onSubmit)}
+          className="space-y-4"
+          noValidate
+        >
 
         <Field label="Name" htmlFor="name" error={errors.name?.message}>
           <Input
@@ -169,6 +188,7 @@ function RegisterForm() {
           {isSubmitting ? 'Creating account…' : 'Create account'}
         </Button>
       </form>
+      </div>
     </AuthCard>
   );
 }

@@ -321,3 +321,51 @@ describe('seeded accounts', () => {
     expect(data.organizer?.verificationStatus).toBe('pending');
   });
 });
+
+describe('OAuth login & registration', () => {
+  test('creates new account and issues tokens for first-time oauth user', async () => {
+    const email = `oauth_new_${Date.now()}@example.com`;
+    const res = await call('/auth/oauth', {
+      method: 'POST',
+      body: JSON.stringify({
+        provider: 'google',
+        email,
+        name: 'OAuth Test User',
+      }),
+    });
+
+    expect(res.status).toBe(200);
+    const data = res.body.data as { user: { email: string; name: string; role: string }; accessToken: string };
+    expect(data.user.email).toBe(email);
+    expect(data.user.name).toBe('OAuth Test User');
+    expect(data.user.role).toBe('attendee');
+    expect(data.accessToken).toBeTruthy();
+
+    const setCookie = res.headers.get('set-cookie') ?? '';
+    expect(setCookie).toContain('refresh_token=');
+  });
+
+  test('signs in existing user seamlessly via OAuth', async () => {
+    const email = `oauth_existing_${Date.now()}@example.com`;
+    // Register normally first
+    await call('/auth/register', {
+      method: 'POST',
+      body: JSON.stringify({ name: 'Existing User', email, password: 'Password123!' }),
+    });
+
+    // Now sign in via Apple OAuth
+    const res = await call('/auth/oauth', {
+      method: 'POST',
+      body: JSON.stringify({
+        provider: 'apple',
+        email,
+        name: 'Existing User Apple',
+      }),
+    });
+
+    expect(res.status).toBe(200);
+    const data = res.body.data as { user: { email: string; name: string; role: string }; accessToken: string };
+    expect(data.user.email).toBe(email);
+    expect(data.accessToken).toBeTruthy();
+  });
+});

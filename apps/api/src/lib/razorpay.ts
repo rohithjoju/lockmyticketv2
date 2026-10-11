@@ -11,6 +11,8 @@ const client = new Razorpay({
   key_secret: env.RAZORPAY_KEY_SECRET,
 });
 
+export const RAZORPAY_KEY_ID = env.RAZORPAY_KEY_ID;
+
 /** Razorpay works in paise; the database stores rupees as numeric(10,2). */
 export const toPaise = (rupees: number): number => Math.round(rupees * 100);
 export const toRupees = (paise: number): number => Math.round(paise) / 100;

@@ -18,12 +18,18 @@ export function AuthCard({
   footer?: React.ReactNode;
 }) {
   return (
-    <div className="mx-auto w-full max-w-md px-5 py-12 md:py-20">
-      <div className="stub p-7">
+    <div className="relative mx-auto w-full max-w-md px-5 py-12 md:py-20">
+      {/* Ambient kinetic glow behind the auth card */}
+      <div
+        className="pointer-events-none absolute inset-x-8 top-16 -bottom-4 rounded-[2.5rem] bg-gradient-to-tr from-accent/20 via-highlight/15 to-accent/10 blur-3xl opacity-60 animate-halo"
+        aria-hidden
+      />
+
+      <div className="stub stub-interactive relative p-7 shadow-2xl backdrop-blur-sm transition-all duration-300">
         <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted">
           {eyebrow}
         </p>
-        <h1 className="mt-2 text-3xl">{title}</h1>
+        <h1 className="mt-2 text-3xl font-bold tracking-tight">{title}</h1>
         {intro ? <p className="mt-2 text-sm text-muted">{intro}</p> : null}
         <div className="mt-7">{children}</div>
       </div>
