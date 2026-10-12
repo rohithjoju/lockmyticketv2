@@ -34,7 +34,7 @@ export function nextTheme(current: Theme): Theme {
 }
 
 export function themeLabel(theme: Theme): string {
-  return theme === 'system' ? 'Match system' : theme === 'light' ? 'Light' : 'Dark';
+  return theme === 'system' ? 'System' : theme === 'light' ? 'Light' : 'Dark';
 }
 
 /** SameSite=Lax, not httpOnly — the client toggle has to write it too. */
