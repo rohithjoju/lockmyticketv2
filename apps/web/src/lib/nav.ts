@@ -23,7 +23,7 @@ export type NavItem = {
  */
 export function navItemsFor(user: SessionUser | null): NavItem[] {
   const items: NavItem[] = [
-    { key: 'browse', href: '/events', label: 'Browse', icon: 'compass', primary: true },
+    { key: 'browse', href: '/events', label: 'Events', icon: 'compass', primary: true },
   ];
 
   if (!user) {
@@ -31,7 +31,7 @@ export function navItemsFor(user: SessionUser | null): NavItem[] {
     return items;
   }
 
-  items.push({ key: 'tickets', href: '/dashboard', label: 'My tickets', icon: 'stub', primary: true });
+  items.push({ key: 'tickets', href: '/dashboard', label: 'Tickets', icon: 'stub', primary: true });
 
   const isApprovedOrganizer = user.organizer?.verificationStatus === 'approved';
 

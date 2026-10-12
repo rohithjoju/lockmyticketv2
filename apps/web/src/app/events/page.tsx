@@ -47,15 +47,9 @@ export default async function EventsPage({
   return (
     <div className="mx-auto max-w-6xl px-5 py-10 md:py-14">
       <header className="mb-8">
-        <div className="flex items-center gap-2">
-          <span className="size-2 rounded-full bg-highlight" aria-hidden />
-          <span className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
-            Launch Hub: Kochi
-          </span>
-        </div>
-        <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">Browse live events</h1>
+        <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Events</h1>
         <p className="mt-1 text-sm text-muted">
-          Discover upcoming shows, indie showcases, and venue drops.
+          Upcoming gigs and ticket drops.
         </p>
       </header>
 

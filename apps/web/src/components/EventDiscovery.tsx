@@ -16,8 +16,8 @@ export type EventDiscoveryProps = {
 };
 
 const CITY_OPTIONS = [
-  { label: 'Kochi (Primary)', value: 'Kochi' },
-  { label: 'All Cities', value: '' },
+  { label: 'Just Kochi', value: 'Kochi' },
+  { label: 'Everywhere', value: '' },
 ];
 
 export function EventDiscovery({
@@ -143,7 +143,7 @@ export function EventDiscovery({
   return (
     <div>
       {/* 1. Live Search & City Selector Bar */}
-      <div className="mb-8 space-y-4">
+      <div className="mb-8">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           {/* Live Search Input with Instant Clear */}
           <div className="relative flex-1">
@@ -170,9 +170,9 @@ export function EventDiscovery({
               type="text"
               value={searchVal}
               onChange={(e) => setSearchVal(e.target.value)}
-              placeholder="Search artists, venues, music, comedy, vibe..."
+              placeholder="Search artists, venues, events..."
               aria-label="Search events"
-              className="w-full rounded-full border border-line bg-surface py-2.5 pl-11 pr-10 text-sm text-fg placeholder:text-muted focus:border-accent focus:outline-none"
+              className="h-11 w-full rounded-full border border-line bg-surface pl-11 pr-10 text-sm text-fg placeholder:text-muted focus:border-accent focus:outline-none"
             />
 
             {searchVal && (
@@ -195,11 +195,11 @@ export function EventDiscovery({
             )}
           </div>
 
-          {/* City Selection: Kochi First Segmented Pill Control */}
+          {/* City Selection: Segmented Control matching search bar height */}
           <div
             role="group"
             aria-label="Select location"
-            className="flex shrink-0 items-center gap-1 rounded-full border border-line bg-surface p-1"
+            className="flex h-11 shrink-0 items-center gap-1 rounded-full border border-line bg-surface p-1"
           >
             {CITY_OPTIONS.map((opt) => {
               const active = city === opt.value;
@@ -208,7 +208,7 @@ export function EventDiscovery({
                   key={opt.label}
                   type="button"
                   onClick={() => handleCitySelect(opt.value)}
-                  className={`rounded-full px-4 py-1.5 text-xs font-semibold transition ${
+                  className={`h-full rounded-full px-4 text-xs font-semibold transition ${
                     active
                       ? 'bg-accent text-accent-fg shadow-sm'
                       : 'text-muted hover:bg-sunk hover:text-fg'
@@ -219,32 +219,6 @@ export function EventDiscovery({
               );
             })}
           </div>
-        </div>
-
-        {/* Live Filter Summary & Loading Indicator */}
-        <div className="flex items-center justify-between text-xs text-muted">
-          <div className="flex items-center gap-2">
-            <span>
-              {city ? `Filtering by ${city}` : 'Showing all locations'}
-              {searchVal ? ` · matching “${searchVal}”` : ''}
-            </span>
-            {loading && (
-              <span className="inline-flex items-center gap-1.5 font-medium text-accent">
-                <span className="size-1.5 animate-ping rounded-full bg-accent" aria-hidden />
-                Updating…
-              </span>
-            )}
-          </div>
-
-          {(city !== 'Kochi' || searchVal) && (
-            <button
-              type="button"
-              onClick={handleResetFilters}
-              className="text-xs font-medium text-muted underline decoration-line transition hover:text-fg"
-            >
-              Reset to Kochi
-            </button>
-          )}
         </div>
       </div>
 
