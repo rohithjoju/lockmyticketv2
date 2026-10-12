@@ -102,6 +102,9 @@ const envSchema = z
     GOOGLE_CLIENT_ID: optional(z.string().min(1)),
     GOOGLE_CLIENT_SECRET: optional(z.string().min(1)),
 
+    // ---- Email (Resend)
+    RESEND_API_KEY: optional(z.string().min(1)),
+
     // ---- Business rules (tunable without code change)
     RESERVATION_TTL_MINUTES: positiveInt.default(10),
     MAX_TICKETS_PER_USER_PER_EVENT: positiveInt.default(10),
