@@ -20,16 +20,35 @@ export default async function HomePage() {
       {/* 1. Hero: Clear statement + tangible demo */}
       <section className="grid items-center gap-10 py-12 md:grid-cols-[1.2fr_1fr] md:py-20">
         <div>
-          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
+          <h1 className="text-3xl font-extrabold tracking-tight text-fg/90 sm:text-4xl lg:text-5xl">
             Nobody sells your seat <span className="text-highlight">while you pay.</span>
           </h1>
 
-          <p className="mt-4 max-w-md text-base text-muted sm:text-lg">
+          <p className="mt-3 max-w-md text-sm text-muted sm:text-base leading-relaxed">
             Held exclusively for you from the second you pick it. No cart drops, no checkout rush.
           </p>
 
-          <div className="mt-8 flex items-center gap-4">
-            <ButtonLink href="/events?city=Kochi">Find events in Kochi</ButtonLink>
+          <div className="mt-8 flex items-center">
+            <ButtonLink
+              href="/events?city=Kochi"
+              className="group relative overflow-hidden px-8 py-3.5 text-base font-semibold shadow-md transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-xl hover:shadow-accent/20 active:translate-y-0 active:scale-[0.98]"
+            >
+              {/* Subtle metallic sheen sweep */}
+              <span
+                className="pointer-events-none absolute inset-0 -top-1/2 -bottom-1/2 w-1/2 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-sheen"
+                aria-hidden="true"
+              />
+
+              <span className="relative z-10 flex items-center gap-2">
+                <span>Find events in Kochi</span>
+                <span
+                  className="transition-transform duration-200 ease-out group-hover:translate-x-1"
+                  aria-hidden="true"
+                >
+                  →
+                </span>
+              </span>
+            </ButtonLink>
           </div>
         </div>
 

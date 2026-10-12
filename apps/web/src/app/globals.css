@@ -209,6 +209,19 @@
   animation: pulse-halo 4s ease-in-out infinite;
 }
 
+@keyframes ticket-sheen {
+  0% {
+    transform: translateX(-150%) skewX(-20deg);
+  }
+  15%, 100% {
+    transform: translateX(250%) skewX(-20deg);
+  }
+}
+
+.animate-sheen {
+  animation: ticket-sheen 4.5s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
+}
+
 @layer components {
   /* ----------------------------------------------------------
      The signature: a ticket stub. A dashed tear line with a real
