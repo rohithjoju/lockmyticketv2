@@ -34,7 +34,7 @@ const TRANSITIONS: TransitionDefinition[] = [
       ],
     },
     options: {
-      duration: 600,
+      duration: 950,
       easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
       pseudoElement: '::view-transition-new(root)',
     },
@@ -46,7 +46,7 @@ const TRANSITIONS: TransitionDefinition[] = [
       clipPath: ['inset(0 0 100% 0)', 'inset(0 0 0% 0)'],
     },
     options: {
-      duration: 520,
+      duration: 850,
       easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
       pseudoElement: '::view-transition-new(root)',
     },
@@ -58,7 +58,7 @@ const TRANSITIONS: TransitionDefinition[] = [
       clipPath: ['inset(100% 0 0 0)', 'inset(0% 0 0 0)'],
     },
     options: {
-      duration: 520,
+      duration: 850,
       easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
       pseudoElement: '::view-transition-new(root)',
     },
@@ -70,7 +70,7 @@ const TRANSITIONS: TransitionDefinition[] = [
       clipPath: ['inset(0 100% 0 0)', 'inset(0 0% 0 0)'],
     },
     options: {
-      duration: 520,
+      duration: 850,
       easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
       pseudoElement: '::view-transition-new(root)',
     },
@@ -82,7 +82,7 @@ const TRANSITIONS: TransitionDefinition[] = [
       clipPath: ['inset(0 0 0 100%)', 'inset(0 0 0 0%)'],
     },
     options: {
-      duration: 520,
+      duration: 850,
       easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
       pseudoElement: '::view-transition-new(root)',
     },
@@ -94,7 +94,7 @@ const TRANSITIONS: TransitionDefinition[] = [
       clipPath: ['inset(0 50% 0 50%)', 'inset(0 0% 0 0%)'],
     },
     options: {
-      duration: 560,
+      duration: 900,
       easing: 'cubic-bezier(0.2, 0, 0, 1)',
       pseudoElement: '::view-transition-new(root)',
     },
@@ -109,7 +109,7 @@ const TRANSITIONS: TransitionDefinition[] = [
       ],
     },
     options: {
-      duration: 560,
+      duration: 900,
       easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
       pseudoElement: '::view-transition-new(root)',
     },
@@ -124,7 +124,7 @@ const TRANSITIONS: TransitionDefinition[] = [
       ],
     },
     options: {
-      duration: 600,
+      duration: 950,
       easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
       pseudoElement: '::view-transition-new(root)',
     },
@@ -137,7 +137,7 @@ const TRANSITIONS: TransitionDefinition[] = [
       transform: ['scale(0.96)', 'scale(1)'],
     },
     options: {
-      duration: 480,
+      duration: 800,
       easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
       pseudoElement: '::view-transition-new(root)',
     },
@@ -196,7 +196,7 @@ export function ThemeProvider({
         applyTheme(next, document.documentElement);
         window.setTimeout(() => {
           document.documentElement.classList.remove('theme-transition');
-        }, 350);
+        }, 600);
         return;
       }
 
